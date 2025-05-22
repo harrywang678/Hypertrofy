@@ -1,0 +1,57 @@
+import {ObjectId} from "mongodb";
+import {exercises, users} from "@/config/mongoCollections.js";
+import * as redis from "redis";
+import {Workout, ExerciseLog, Set, Exercise, User} from "@/types/fitness";
+import * as validation from "@/validation";
+import bcrypt from "bcryptjs";
+
+const registerUser = async (
+  firstName: string,
+  lastName: string,
+  email: string,
+  password: string,
+  profilePictureUrl?: string
+): Promise<{signupComplete: boolean; user?: User; error?: Error}> => {
+  try {
+    firstName = validation.isValidName(firstName, "First Name");
+    lastName = validation.isValidName(lastName, "Last Name");
+    email = validation.checkIsProperEmail(email, "Email");
+    password = validation.checkIsProperPassword(password, "Password");
+    const saltRounds = 3;
+    const hash = await bcrypt.hash(password, saltRounds);
+    const createdAt = new Date();
+    const updatedAt = new Date();
+
+    const userCollection = await users();
+    const alreadyAUser = await userCollection.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (alreadyAUser) {
+      throw new Error("There is a already an account with this Email.");
+    }
+
+    const newUser: Omit<User, "_id"> = {
+      name: `${firstName} ${lastName}`,
+      email: email.toLowerCase(),
+      password: hash,
+      createdAt,
+      updatedAt,
+      friends: [],
+    };
+
+    const insertUser = await userCollection.insertOne(newUser);
+    if (!insertUser.acknowledged || !insertUser.insertedId) {
+      throw new Error("Server Error: Could not create new user.");
+    }
+
+    const createdUser = await userCollection.findOne({
+      _id: insertUser.insertedId,
+    });
+
+    return {signupComplete: true, user: createdUser as User};
+  } catch (e: any) {
+    return {signupComplete: false, error: e};
+  }
+};
+const loginUser = async () => {};
