@@ -11,7 +11,11 @@ const registerUser = async (
   email: string,
   password: string,
   profilePictureUrl?: string
-): Promise<{signupComplete: boolean; user?: User; error?: Error}> => {
+): Promise<{
+  signupComplete: boolean;
+  user?: Omit<User, "password">;
+  error?: Error;
+}> => {
   try {
     firstName = validation.isValidName(firstName, "First Name");
     lastName = validation.isValidName(lastName, "Last Name");
@@ -49,9 +53,47 @@ const registerUser = async (
       _id: insertUser.insertedId,
     });
 
-    return {signupComplete: true, user: createdUser as User};
+    const {password: _pass, ...userWithoutPassword} = createdUser;
+    const completedUserWithoutPassword: Omit<User, "password"> = {
+      ...userWithoutPassword,
+    };
+
+    return {signupComplete: true, user: completedUserWithoutPassword as User};
   } catch (e: any) {
     return {signupComplete: false, error: e};
   }
 };
-const loginUser = async () => {};
+const loginUser = async (
+  email: string,
+  password: string
+): Promise<{
+  loginComplete: boolean;
+  user?: Omit<User, "password">;
+  error?: Error;
+}> => {
+  try {
+    email = validation.checkIsProperEmail(email, "Email");
+    password = validation.checkIsProperPassword(password, "Password");
+
+    const userCollection = await users();
+
+    const userExists = userCollection.findOne({email: email.toLowerCase()});
+
+    if (!userExists)
+      throw new Error("Either the email or password is invalid.");
+
+    const passwordCrypt = await bcrypt.compare(password, userExists.password);
+
+    if (!passwordCrypt)
+      throw new Error("Either the email or password is invalid.");
+
+    const {password: _pass, ...userWithoutPassword} = userExists;
+    const completedUserWithoutPassword: Omit<User, "password"> = {
+      ...userWithoutPassword,
+    };
+
+    return {loginComplete: true, user: completedUserWithoutPassword};
+  } catch (e: any) {
+    return {loginComplete: false, error: e};
+  }
+};
