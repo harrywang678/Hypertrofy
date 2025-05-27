@@ -5,7 +5,7 @@ import {Workout, ExerciseLog, Set, Exercise, User} from "@/types/fitness";
 import * as validation from "@/validation";
 import bcrypt from "bcryptjs";
 
-const registerUser = async (
+export const registerUser = async (
   firstName: string,
   lastName: string,
   email: string,
@@ -60,10 +60,11 @@ const registerUser = async (
 
     return {signupComplete: true, user: completedUserWithoutPassword as User};
   } catch (e: any) {
+    console.log(e);
     return {signupComplete: false, error: e};
   }
 };
-const loginUser = async (
+export const loginUser = async (
   email: string,
   password: string
 ): Promise<{
