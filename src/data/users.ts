@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {exercises, users} from "@/config/mongoCollections.js";
+import {users} from "@/config/mongoCollections.js";
 import * as redis from "redis";
 import {Workout, ExerciseLog, Set, Exercise, User} from "@/types/fitness";
 import * as validation from "@/validation";
@@ -9,8 +9,7 @@ export const registerUser = async (
   firstName: string,
   lastName: string,
   email: string,
-  password: string,
-  profilePictureUrl?: string
+  password: string
 ): Promise<{
   signupComplete: boolean;
   user?: Omit<User, "password">;

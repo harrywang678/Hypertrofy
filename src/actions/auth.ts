@@ -1,9 +1,8 @@
 "use server";
 
-import {registerUser} from "@/data/users";
+import {registerUser, loginUser} from "@/data/users";
 
 export async function registerUserAction(formData: FormData) {
-  console.log("ACTION REACHED");
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
@@ -24,3 +23,5 @@ export async function registerUserAction(formData: FormData) {
 
   return {success: true};
 }
+
+export async function loginUserAction(formData: FormData) {}

@@ -1,18 +1,22 @@
 import {MongoClient} from "mongodb";
-import {mongoConfig} from "./settings.js";
+import {mongoConfig, env} from "@/config/settings.js";
 
 let _connection = undefined;
 let _db = undefined;
 
 const dbConnection = async () => {
-  if (!_connection) {
-    _connection = await MongoClient.connect(mongoConfig.serverUrl);
-    _db = _connection.db(mongoConfig.database);
+  try {
+    const mongoURI = env.MONGODB_URI || mongoConfig.serverUrl;
+    if (!_connection) {
+      _connection = await MongoClient.connect(mongoURI);
+      _db = _connection.db(mongoConfig.database);
+    }
+    console.log("MongoDB Connected.");
+    return _db;
+  } catch (e) {
+    console.log(e);
   }
-
-  return _db;
 };
-
 const closeConnection = async () => {
   await _connection.close();
 };

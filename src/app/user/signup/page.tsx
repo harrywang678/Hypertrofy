@@ -3,6 +3,8 @@
 import {useState, useRef, ChangeEvent, useEffect} from "react";
 import {registerUserAction} from "@/actions/auth";
 import {useRouter} from "next/navigation";
+import Google from "next-auth/providers/google";
+import GoogleButton from "react-google-button";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -96,6 +98,8 @@ export default function SignUpForm() {
         >
           {loading ? "Registering..." : "Sign Up"}
         </button>
+
+        <GoogleButton className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"></GoogleButton>
       </form>
     </div>
   );

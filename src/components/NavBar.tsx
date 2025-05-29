@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NavBar() {
   return (
     <header className="bg-gray-800 text-white p-4 shadow-md">
-      <h1 className="text-2xl font-bold">Linkly</h1>
+      <h1 className="text-2xl font-bold">Liftly</h1>
       <nav className="mt-2">
         <ul className="flex gap-4">
           <li>
@@ -16,7 +16,7 @@ export default function NavBar() {
             <Link href={"/user/login"}>Login</Link>
           </li>
           <li>
-            <Link href={"/user/register"}>Sign Up</Link>
+            <Link href={"/user/signup"}>Sign Up</Link>
           </li>
         </ul>
       </nav>

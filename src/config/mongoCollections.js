@@ -1,5 +1,4 @@
-import {dbConnection} from "./mongoConnection.js";
-// this is some more comments
+import {dbConnection} from "@/config/mongoConnection.js";
 const getCollectionFn = (collection) => {
   let _col = undefined;
 
@@ -14,8 +13,4 @@ const getCollectionFn = (collection) => {
 };
 
 // list of collections
-export const exercises = getCollectionFn("exercises");
-export const sets = getCollectionFn("sets");
-export const exerciseLogs = getCollectionFn("exerciseLogs");
-export const workouts = getCollectionFn("workouts");
 export const users = getCollectionFn("users");
