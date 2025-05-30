@@ -5,15 +5,25 @@ import {registerUserAction} from "@/actions/auth";
 import {useRouter} from "next/navigation";
 import Google from "next-auth/providers/google";
 import GoogleButton from "react-google-button";
+import {useSession, signIn, signOut} from "next-auth/react";
 
 export default function SignUpForm() {
   const router = useRouter();
+  const {data: session} = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.replace("/");
+    }
+  }, [session]);
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
   });
+
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -99,7 +109,10 @@ export default function SignUpForm() {
           {loading ? "Registering..." : "Sign Up"}
         </button>
 
-        <GoogleButton className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"></GoogleButton>
+        <GoogleButton
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+          onClick={() => signIn("google")}
+        ></GoogleButton>
       </form>
     </div>
   );

@@ -1,9 +1,9 @@
 // lib/auth.ts
 import {NextAuthOptions} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import {connectDB} from "@/config/database";
-import User from "@/models/user";
+import {connectDB} from "@/config/database"; // Your MongoDB connection helper
 import type {Profile} from "next-auth";
+import {users} from "@/config/mongoCollections";
 
 type ExtendedProfile = Profile & {picture?: string};
 
@@ -14,52 +14,50 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_SECRET!,
     }),
   ],
+
   callbacks: {
     async session({session}) {
-      await connectDB();
+      if (!session?.user?.email) return session;
 
-      // ✅ Check if session.user and session.user.email are defined
-      if (session?.user?.email) {
-        const sessionUser = await User.findOne({email: session.user.email});
-        if (sessionUser) {
-          // ✅ Safely assign ID only if session.user exists
-          (session.user as {id?: string}).id = sessionUser._id.toString();
-        }
+      const db = await connectDB();
+      const user = await db
+        .collection("users")
+        .findOne({email: session.user.email});
+
+      if (user) {
+        (session.user as {id?: string}).id = user._id.toString();
       }
 
       return session;
     },
 
-    async signIn({
-      profile,
-    }: {
-      user?: any;
-      account?: any;
-      profile?: Profile;
-      email?: any;
-      credentials?: any;
-    }): Promise<boolean> {
-      await connectDB();
+    async signIn({profile}) {
+      if (!profile) return false;
 
-      // Cast profile to ExtendedProfile if it exists
-      const extProfile = profile as ExtendedProfile | undefined;
+      const extProfile = profile as ExtendedProfile;
+      if (!extProfile.email) return false;
 
-      if (!extProfile?.email) {
-        return false;
-      }
+      const usersCollection = await users();
 
-      const userExists = await User.findOne({email: extProfile.email});
+      const userExists = await usersCollection.findOne({
+        email: extProfile.email,
+      });
 
       if (!userExists) {
-        await User.create({
+        const now = new Date();
+        await usersCollection.insertOne({
           email: extProfile.email,
           name: extProfile.name,
           image: extProfile.picture,
+          createdAt: now,
+          updatedAt: now,
+          friends: [],
         });
       }
 
       return true;
     },
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };
