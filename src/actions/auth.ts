@@ -24,4 +24,19 @@ export async function registerUserAction(formData: FormData) {
   return {success: true};
 }
 
-export async function loginUserAction(formData: FormData) {}
+export async function loginUserAction(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  if (!email || !password) {
+    return {error: "Please enter your Email and Passowrd."};
+  }
+
+  const result = await loginUser(email, password);
+
+  if (result.error) {
+    return {error: result.error};
+  }
+
+  return {sucess: true};
+}

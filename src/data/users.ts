@@ -77,7 +77,9 @@ export const loginUser = async (
 
     const userCollection = await users();
 
-    const userExists = userCollection.findOne({email: email.toLowerCase()});
+    const userExists = await userCollection.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (!userExists)
       throw new Error("Either the email or password is invalid.");
@@ -87,9 +89,10 @@ export const loginUser = async (
     if (!passwordCrypt)
       throw new Error("Either the email or password is invalid.");
 
-    const {password: _pass, ...userWithoutPassword} = userExists;
+    const {password: _pass, _id, ...userWithoutPassword} = userExists;
     const completedUserWithoutPassword: Omit<User, "password"> = {
       ...userWithoutPassword,
+      id: _id.toString(),
     };
 
     return {loginComplete: true, user: completedUserWithoutPassword};

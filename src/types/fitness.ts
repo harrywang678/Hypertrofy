@@ -33,6 +33,7 @@ export interface Workout {
 }
 
 export interface User {
+  id: string;
   _id: string | ObjectId;
   name: string;
   email: string;
