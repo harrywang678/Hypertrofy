@@ -1,7 +1,13 @@
 import {ObjectId} from "mongodb";
 import {users} from "@/config/mongoCollections.js";
 import * as redis from "redis";
-import {Workout, ExerciseLog, Set, Exercise, User} from "@/types/fitness";
+import {
+  Workout,
+  ExerciseLog,
+  ExerciseSet,
+  Exercise,
+  User,
+} from "@/types/fitness";
 import * as validation from "@/validation";
 import bcrypt from "bcryptjs";
 
