@@ -1,18 +1,18 @@
 // config/database.ts
-import { MongoClient, Db } from "mongodb";
+import { MongoClient, Db } from 'mongodb';
 
 const uri = process.env.MONGODB_URI!;
-const dbName = "Liftly";
+const dbName = 'Liftly';
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 let db: Db;
 
 if (!uri) {
-  throw new Error("Please add your Mongo URI to .env");
+  throw new Error('Please add your Mongo URI to .env');
 }
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV === 'development') {
   if (!(global as any)._mongoClientPromise) {
     client = new MongoClient(uri);
     (global as any)._mongoClientPromise = client.connect();
@@ -27,7 +27,7 @@ export async function connectDB(): Promise<Db> {
   if (!db) {
     const client = await clientPromise;
     db = client.db(dbName);
-    console.log("MongoDB Connected");
+    console.log('MongoDB Connected using connectDB()');
   }
   return db;
 }

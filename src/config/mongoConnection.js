@@ -11,7 +11,7 @@ const dbConnection = async () => {
       _connection = await MongoClient.connect(mongoURI);
       _db = _connection.db(mongoConfig.database);
     }
-    console.log("MongoDB Connected.");
+    console.log("MongoCollections Connected.");
     return _db;
   } catch (e) {
     console.log(e);
