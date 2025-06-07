@@ -18,7 +18,7 @@ export default function LoginForm() {
   // Redirect if logged in
   useEffect(() => {
     if (session) {
-      router.replace("/");
+      router.replace("/dashboard");
     }
   }, [session, router]);
 
