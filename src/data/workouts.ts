@@ -50,7 +50,6 @@ export const createWorkout = async (
 
     return newWorkout;
   } catch (e: any) {
-    console.log(e);
     throw new Error(e);
   }
 };
@@ -66,7 +65,6 @@ export const getWorkoutById = async (id: string) => {
 
     return workout;
   } catch (e: any) {
-    console.log(e);
     throw new Error(e.message || "Unknown error");
   }
 };

@@ -35,7 +35,7 @@ export default function DashboardPage() {
 
       const data = await res.json();
       if (res.ok) {
-        setMessage(`Workout created: ${data.workout._id}`);
+        router.replace(`/workouts/${data.workout._id}`);
       } else {
         setMessage(data.error || "Failed to create workout");
       }

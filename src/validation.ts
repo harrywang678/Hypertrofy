@@ -129,3 +129,63 @@ export function isValidName(
   }
   return str;
 }
+
+export function validateMuscleGroup(muscle: string) {
+  if (!muscleGroups.includes(muscle)) {
+    throw new Error(`Invalid muscle group: ${muscle}`);
+  } else return muscle;
+}
+
+const muscleGroups: string[] = [
+  "Chest",
+  "Back",
+  "Shoulders",
+  "Biceps",
+  "Triceps",
+  "Forearms",
+  "Abs",
+  "Obliques",
+  "Quads",
+  "Hamstrings",
+  "Glutes",
+  "Calves",
+  "Traps",
+  "Lats",
+  "Neck",
+  "Hip Flexors",
+  "Adductors",
+  "Abductors",
+];
+
+const equipmentList: string[] = [
+  "Barbell",
+  "Dumbbell",
+  "Kettlebell",
+  "Machine",
+  "Cable",
+  "Bodyweight",
+  "Resistance Band",
+  "Smith Machine",
+  "EZ Bar",
+  "Trap Bar",
+  "Medicine Ball",
+  "Sandbag",
+  "Foam Roller",
+  "Stability Ball",
+  "Pull-Up Bar",
+  "Dip Bar",
+  "Bench",
+  "Treadmill",
+  "Rowing Machine",
+  "Bike",
+  "Stair Climber",
+  "Sled",
+  "Jump Rope",
+  "Suspension Trainer (e.g., TRX)",
+];
+
+export function validateEquipment(equipment: string) {
+  if (!equipmentList.includes(equipment)) {
+    throw new Error(`Invalid equipment: ${equipment}`);
+  } else return equipment;
+}
