@@ -17,6 +17,16 @@ export default function IndividualWorkoutPage() {
     equipment: "",
   });
 
+  useEffect(() => {
+    return () => stopCountdown();
+  }, []);
+
+  useEffect(() => {
+    if (!session && status !== "loading") {
+      router.replace("/api/auth/signin");
+    }
+  }, [session, status]);
+
   const muscleGroups: string[] = [
     "Chest",
     "Back",
@@ -100,16 +110,6 @@ export default function IndividualWorkoutPage() {
     setTimeLeft((prev) => Math.max(0, prev + amount));
   };
 
-  useEffect(() => {
-    return () => stopCountdown();
-  }, []);
-
-  useEffect(() => {
-    if (!session && status !== "loading") {
-      router.replace("/api/auth/signin");
-    }
-  }, [session, status]);
-
   const formatTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60)
       .toString()
@@ -152,6 +152,15 @@ export default function IndividualWorkoutPage() {
       alert("Error: " + error.message);
     }
   };
+
+  if (status === "loading") {
+    return null;
+  }
+
+  if (!session) {
+    router.replace("/api/auth/signin");
+    return null;
+  }
 
   return (
     <div className="p-4 text-center">
