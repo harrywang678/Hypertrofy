@@ -1,12 +1,5 @@
 import {ObjectId} from "mongodb";
 import {workouts, users} from "@/config/mongoCollections";
-import {
-  Workout,
-  ExerciseLog,
-  ExerciseSet,
-  Exercise,
-  User,
-} from "@/types/fitness";
 import * as validation from "@/validation";
 
 export const createWorkout = async (
@@ -31,9 +24,10 @@ export const createWorkout = async (
       throw new Error("User Not Found, can not make new workout.");
 
     let newWorkout = {
-      userId,
+      userId: new ObjectId(userId),
       name,
       notes,
+      exercises: [],
     };
 
     const insertedWorkout = await workoutCollection.insertOne(newWorkout);
@@ -41,12 +35,12 @@ export const createWorkout = async (
     if (!insertedWorkout.acknowledged || !insertedWorkout.insertedId)
       throw new Error("Could not create new workout.");
 
+    newWorkout = {...(newWorkout as any), _id: insertedWorkout.insertedId};
+
     await userCollection.updateOne(
       {_id: new ObjectId(userId)},
       {$push: {workouts: insertedWorkout.insertedId}}
     );
-
-    newWorkout = {...(newWorkout as any), _id: insertedWorkout.insertedId};
 
     return newWorkout;
   } catch (e: any) {
@@ -66,5 +60,47 @@ export const getWorkoutById = async (id: string) => {
     return workout;
   } catch (e: any) {
     throw new Error(e.message || "Unknown error");
+  }
+};
+
+export const addExerciseToWorkout = async (
+  workoutId: string,
+  exerciseData: {
+    exerciseId: string;
+    name: string;
+    muscle: string;
+    equipment: string;
+  }
+) => {
+  try {
+    workoutId = validation.checkIsProperID(workoutId, "WorkoutId");
+
+    // Validate and format input
+    const exerciseToAdd = {
+      _id: new ObjectId(), // Unique ID for this workout's exercise entry
+      exerciseId: new ObjectId(exerciseData.exerciseId),
+      name: validation.checkIsProperString(exerciseData.name, "Exercise Name"),
+      muscle: validation.checkIsProperString(exerciseData.muscle, "Muscle"),
+      equipment: validation.checkIsProperString(
+        exerciseData.equipment,
+        "Equipment"
+      ),
+      sets: [], // Start with empty sets array
+    };
+
+    const workoutCollection = await workouts();
+
+    const updateResult = await workoutCollection.updateOne(
+      {_id: new ObjectId(workoutId)},
+      {$push: {exercises: exerciseToAdd}}
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      throw new Error("Failed to add exercise to workout.");
+    }
+
+    return exerciseToAdd; // return the added exercise with its _id
+  } catch (e: any) {
+    throw new Error(e.message || "Error adding exercise to workout.");
   }
 };

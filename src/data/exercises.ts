@@ -1,5 +1,5 @@
 import {IntegerType, ObjectId} from "mongodb";
-import {exercises} from "@/config/mongoCollections.js";
+import {exercises, workouts} from "@/config/mongoCollections.js";
 import * as redis from "redis";
 import * as validation from "@/validation";
 
@@ -41,6 +41,39 @@ export const createExercise = async (
 
     return newExercise;
   } catch (e: any) {
+    throw new Error(e);
+  }
+};
+
+export const getAllDefaultExercises = async () => {
+  try {
+    const exerciseCollection = await exercises();
+
+    const allDefaultExercises = await exerciseCollection
+      .find({userMade: false})
+      .toArray();
+
+    if (!allDefaultExercises)
+      throw new Error("Can not find default exercises.");
+    return allDefaultExercises;
+  } catch (e: any) {
+    console.error("Error fetching default exercises:", e);
+    throw new Error(e);
+  }
+};
+
+export const getExerciseById = async (id: string) => {
+  try {
+    id = validation.checkIsProperID(id, "getExercisebyId: id");
+    const exerciseCollection = await exercises();
+
+    const exercise = await exerciseCollection.findOne({_id: new ObjectId(id)});
+
+    if (!exercise) throw new Error("Can not find exercise.");
+
+    return exercise;
+  } catch (e: any) {
+    console.error("Error fetching exercise by id: ", e);
     throw new Error(e);
   }
 };
