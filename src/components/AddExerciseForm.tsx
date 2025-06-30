@@ -15,6 +15,11 @@ interface AddExerciseFormProps {
   onWorkoutUpdate: (updatedWorkout: any) => void;
 }
 
+interface Set {
+  reps: number;
+  weight: number;
+}
+
 export default function AddExerciseForm({
   workoutId,
   session,

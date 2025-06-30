@@ -7,13 +7,18 @@ import AddExerciseForm from "@/components/AddExerciseForm";
 import Timer from "@/components/Timer";
 import ExerciseCard from "@/components/ExerciseCard";
 
+interface Set {
+  _id: string;
+  reps: number;
+  weight: number;
+}
+
 interface Exercise {
   _id: string;
-  exerciseId: string;
   name: string;
   muscle: string;
   equipment: string;
-  sets?: any[]; // if you're also tracking sets per exercise
+  sets?: Set[];
 }
 
 export default function IndividualWorkoutPage() {
@@ -32,19 +37,19 @@ export default function IndividualWorkoutPage() {
   }, [session, status]);
 
   // Fetch workout details
-  useEffect(() => {
-    const fetchWorkout = async () => {
-      try {
-        const res = await fetch(`/api/workouts/${workoutId}`);
-        if (!res.ok) throw new Error("Failed to fetch workout");
-        const data = await res.json();
-        setWorkout(data);
-      } catch (err) {
-        console.error("Error fetching workout:", err);
-      }
-    };
+  const fetchWorkout = async () => {
+    try {
+      const res = await fetch(`/api/workouts/${workoutId}`);
+      if (!res.ok) throw new Error("Failed to fetch workout");
+      const data = await res.json();
+      setWorkout(data);
+    } catch (err) {
+      console.error("Error fetching workout:", err);
+    }
+  };
 
-    fetchWorkout();
+  useEffect(() => {
+    if (workoutId) fetchWorkout();
   }, [workoutId]);
 
   if (status === "loading" || !session) return null;
@@ -52,8 +57,6 @@ export default function IndividualWorkoutPage() {
   // Delete exercise handler
   const handleDeleteExercise = async (exerciseId: string) => {
     try {
-      console.log(workoutId);
-      console.log(exerciseId);
       const res = await fetch(
         `/api/workouts/${workoutId}/exercises/${exerciseId}`,
         {
@@ -95,6 +98,7 @@ export default function IndividualWorkoutPage() {
                 exercise={exercise}
                 workoutId={workoutId}
                 onDelete={handleDeleteExercise}
+                onSetAdded={fetchWorkout} // ✅ refresh after adding a set
               />
             ))}
           </ul>
@@ -104,7 +108,7 @@ export default function IndividualWorkoutPage() {
       <AddExerciseForm
         workoutId={workoutId}
         session={session}
-        onWorkoutUpdate={setWorkout}
+        onWorkoutUpdate={setWorkout} // ✅ update workout after adding exercises
       />
     </div>
   );
