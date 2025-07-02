@@ -28,6 +28,7 @@ export const createWorkout = async (
       name,
       notes,
       exercises: [],
+      finished: false,
     };
 
     const insertedWorkout = await workoutCollection.insertOne(newWorkout);
