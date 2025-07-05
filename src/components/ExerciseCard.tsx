@@ -21,6 +21,7 @@ interface ExerciseCardProps {
   workoutId: string;
   onDelete: (exerciseId: string) => void;
   onSetAdded?: () => void; // Optional callback to refresh after adding a set
+  finished?: boolean;
 }
 
 export default function ExerciseCard({
@@ -28,6 +29,7 @@ export default function ExerciseCard({
   workoutId,
   onDelete,
   onSetAdded,
+  finished,
 }: ExerciseCardProps) {
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
@@ -99,49 +101,55 @@ export default function ExerciseCard({
               {exercise.sets.map((s, i) => (
                 <li key={s._id}>
                   Reps: {s.reps}, Weight: {s.weight} lbs{" "}
-                  <button
-                    onClick={() => handleDeleteSet(s._id)}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
+                  {!finished && (
+                    <button
+                      onClick={() => handleDeleteSet(s._id)}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <button
-          onClick={handleDelete}
-          className="text-red-500 hover:text-red-700 text-sm"
-        >
-          Delete
-        </button>
+        {!finished && (
+          <button
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700 text-sm"
+          >
+            Delete
+          </button>
+        )}
       </div>
 
       {/* Add Set Form */}
-      <div className="flex gap-2 items-center">
-        <input
-          type="number"
-          placeholder="Reps"
-          value={reps}
-          onChange={(e) => setReps(e.target.value)}
-          className="w-20 px-2 py-1 border rounded text-white"
-        />
-        <input
-          type="number"
-          placeholder="Weight"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          className="w-20 px-2 py-1 border rounded text-white"
-        />
-        <button
-          onClick={handleAddSet}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-        >
-          {loading ? "Adding..." : "Add Set"}
-        </button>
-      </div>
+      {!finished && (
+        <div className="flex gap-2 items-center">
+          <input
+            type="number"
+            placeholder="Reps"
+            value={reps}
+            onChange={(e) => setReps(e.target.value)}
+            className="w-20 px-2 py-1 border rounded text-white"
+          />
+          <input
+            type="number"
+            placeholder="Weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="w-20 px-2 py-1 border rounded text-white"
+          />
+          <button
+            onClick={handleAddSet}
+            disabled={loading}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+          >
+            {loading ? "Adding..." : "Add Set"}
+          </button>
+        </div>
+      )}
     </li>
   );
 }

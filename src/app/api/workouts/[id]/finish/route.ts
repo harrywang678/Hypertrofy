@@ -5,7 +5,11 @@ import * as validation from "@/validation";
 
 export async function PATCH(req: Request, {params}: {params: {id: string}}) {
   try {
-    let workoutId = validation.checkIsProperID(params.id);
+    let {id} = await params;
+
+    console.log(id);
+
+    let workoutId = validation.checkIsProperID(id);
 
     const workoutCollection = await workouts();
 

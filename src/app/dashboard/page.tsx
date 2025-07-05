@@ -13,6 +13,33 @@ export default function DashboardPage() {
   const [workoutId, setWorkoutId] = useState("");
   const [workoutResult, setWorkoutResult] = useState(null);
   const [message, setMessage] = useState("");
+  const [mongoUserId, setMongoUserId] = useState("");
+
+  useEffect(() => {
+    const fetchMongoUserId = async () => {
+      if (!session?.user?.email) return;
+
+      try {
+        const res = await fetch("/api/users/by-email", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({email: session.user.email}),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.user) {
+          // store the MongoDB user ID
+          setMongoUserId(data.user._id);
+        } else {
+          console.error(data.error || "Failed to fetch Mongo user ID");
+        }
+      } catch (err) {
+        console.error("Failed to fetch Mongo user ID:", err);
+      }
+    };
+
+    fetchMongoUserId();
+  }, [session]);
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -27,7 +54,8 @@ export default function DashboardPage() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          userId: session?.user?.id, // make sure user.id is in your session
+          userId: mongoUserId,
+          // make sure user.id is in your session
           name,
           notes,
         }),

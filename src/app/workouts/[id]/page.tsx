@@ -19,6 +19,7 @@ interface Exercise {
   muscle: string;
   equipment: string;
   sets?: Set[];
+  finished: boolean;
 }
 
 export default function IndividualWorkoutPage() {
@@ -82,9 +83,27 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  const handleFinishWorkout = async () => {
+    try {
+      const res = await fetch(`/api/workouts/${workoutId}/finish`, {
+        method: "PATCH",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to finish workout");
+      }
+
+      fetchWorkout();
+    } catch (e: any) {
+      console.log(e);
+      throw new Error(e);
+    }
+  };
+
   return (
     <div className="p-4 text-center">
-      <Timer />
+      {!workout?.finished && <Timer />}
 
       {Array.isArray(workout?.exercises) && workout.exercises.length > 0 && (
         <div className="mt-6 text-left">
@@ -99,17 +118,23 @@ export default function IndividualWorkoutPage() {
                 workoutId={workoutId}
                 onDelete={handleDeleteExercise}
                 onSetAdded={fetchWorkout} // ✅ refresh after adding a set
+                finished={workout?.finished}
               />
             ))}
           </ul>
         </div>
       )}
 
-      <AddExerciseForm
-        workoutId={workoutId}
-        session={session}
-        onWorkoutUpdate={setWorkout} // ✅ update workout after adding exercises
-      />
+      {!workout?.finished && (
+        <AddExerciseForm
+          workoutId={workoutId}
+          session={session}
+          onWorkoutUpdate={setWorkout}
+        />
+      )}
+      {!workout?.finished && (
+        <button onClick={handleFinishWorkout}> Finished This Workout </button>
+      )}
     </div>
   );
 }

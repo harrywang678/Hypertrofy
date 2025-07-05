@@ -5,6 +5,8 @@ export async function POST(req: NextRequest) {
   try {
     const {userId, name, notes} = await req.json();
 
+    console.log(userId, name, notes);
+
     if (!userId || !name) {
       return NextResponse.json(
         {error: "userId and name are required"},

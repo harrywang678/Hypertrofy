@@ -67,7 +67,6 @@ export default function AddExerciseForm({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to add exercises.");
 
-      alert("Exercises added!");
       setSelectedExercises([]);
 
       const refreshedWorkoutRes = await fetch(`/api/workouts/${workoutId}`);
