@@ -1,11 +1,18 @@
 "use client";
-import {useEffect, useRef, useState} from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 
 interface TimerProps {
   initialTime?: number;
+  resetSignal: number; // triggers reset when changed
 }
 
-export default function Timer({initialTime = 180}: TimerProps) {
+export default function Timer({initialTime = 180, resetSignal}: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -55,6 +62,13 @@ export default function Timer({initialTime = 180}: TimerProps) {
   useEffect(() => {
     return () => stopCountdown();
   }, []);
+
+  useEffect(() => {
+    if (resetSignal > 0) {
+      resetCountdown();
+      startCountdown();
+    }
+  }, [resetSignal]);
 
   return (
     <div className="text-center">

@@ -6,6 +6,7 @@ interface Set {
   _id: string;
   reps: number;
   weight: number;
+  completed: boolean;
 }
 
 interface Exercise {
@@ -22,6 +23,7 @@ interface ExerciseCardProps {
   onDelete: (exerciseId: string) => void;
   onSetAdded?: () => void; // Optional callback to refresh after adding a set
   finished?: boolean;
+  onSetComplete?: () => void;
 }
 
 export default function ExerciseCard({
@@ -30,6 +32,7 @@ export default function ExerciseCard({
   onDelete,
   onSetAdded,
   finished,
+  onSetComplete,
 }: ExerciseCardProps) {
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
@@ -90,6 +93,28 @@ export default function ExerciseCard({
     }
   };
 
+  const handleToggleSetComplete = async (setId: string, completed: boolean) => {
+    try {
+      const res = await fetch(
+        `/api/workouts/${workoutId}/exercises/${exercise._id}/sets/${setId}`,
+        {
+          method: "PATCH",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({completed}),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update set");
+
+      if (onSetAdded) await onSetAdded();
+      if (onSetComplete) await onSetComplete();
+    } catch (err: any) {
+      alert("Failed to complete set: " + err.message);
+      console.error(err);
+    }
+  };
+
   return (
     <li className="mb-6 p-4 bg-gray-900 rounded shadow-md text-white">
       <div className="flex justify-between items-start mb-2">
@@ -97,18 +122,31 @@ export default function ExerciseCard({
           <strong>{exercise.name}</strong> — {exercise.muscle} |{" "}
           {exercise.equipment}
           {exercise.sets && exercise.sets.length > 0 && (
-            <ul className="mt-2 ml-4 list-disc text-sm">
+            <ul className="mt-2 ml-4 list-none text-sm space-y-1">
               {exercise.sets.map((s, i) => (
                 <li key={s._id}>
-                  Reps: {s.reps}, Weight: {s.weight} lbs{" "}
-                  {!finished && (
-                    <button
-                      onClick={() => handleDeleteSet(s._id)}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      Delete
-                    </button>
-                  )}
+                  <div className="flex items-center gap-4">
+                    {!finished && (
+                      <input
+                        type="checkbox"
+                        checked={s.completed ?? false}
+                        onChange={() =>
+                          handleToggleSetComplete(s._id, !s.completed)
+                        }
+                      />
+                    )}
+                    <span>
+                      Reps: {s.reps}, Weight: {s.weight} lbs
+                    </span>
+                    {!finished && (
+                      <button
+                        onClick={() => handleDeleteSet(s._id)}
+                        className="text-red-500 hover:text-red-700 text-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

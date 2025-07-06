@@ -18,7 +18,7 @@ export async function POST(
       _id: new ObjectId(),
       reps: body.reps,
       weight: body.weight,
-      finished: false,
+      completed: false,
     };
 
     const workoutCollection = await workouts();

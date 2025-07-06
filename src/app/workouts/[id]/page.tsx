@@ -1,6 +1,7 @@
 "use client";
 
 import {useSession} from "next-auth/react";
+import {useRef} from "react";
 import {useRouter, useParams} from "next/navigation";
 import {useEffect, useState} from "react";
 import AddExerciseForm from "@/components/AddExerciseForm";
@@ -11,6 +12,7 @@ interface Set {
   _id: string;
   reps: number;
   weight: number;
+  completed: boolean;
 }
 
 interface Exercise {
@@ -28,6 +30,7 @@ export default function IndividualWorkoutPage() {
   const params = useParams();
   const workoutId = params?.id as string;
 
+  const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [workout, setWorkout] = useState<any>(null);
 
   // Redirect to login if not authenticated
@@ -54,6 +57,10 @@ export default function IndividualWorkoutPage() {
   }, [workoutId]);
 
   if (status === "loading" || !session) return null;
+
+  const handleSetComplete = () => {
+    setTimerResetSignal((prev) => prev + 1); // triggers timer reset
+  };
 
   // Delete exercise handler
   const handleDeleteExercise = async (exerciseId: string) => {
@@ -103,7 +110,7 @@ export default function IndividualWorkoutPage() {
 
   return (
     <div className="p-4 text-center">
-      {!workout?.finished && <Timer />}
+      {!workout?.finished && <Timer resetSignal={timerResetSignal} />}
 
       {Array.isArray(workout?.exercises) && workout.exercises.length > 0 && (
         <div className="mt-6 text-left">
@@ -119,6 +126,7 @@ export default function IndividualWorkoutPage() {
                 onDelete={handleDeleteExercise}
                 onSetAdded={fetchWorkout} // ✅ refresh after adding a set
                 finished={workout?.finished}
+                onSetComplete={handleSetComplete}
               />
             ))}
           </ul>
