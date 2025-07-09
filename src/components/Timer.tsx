@@ -1,15 +1,10 @@
 "use client";
-import {
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
+
+import {useEffect, useRef, useState} from "react";
 
 interface TimerProps {
   initialTime?: number;
-  resetSignal: number; // triggers reset when changed
+  resetSignal: number;
 }
 
 export default function Timer({initialTime = 180, resetSignal}: TimerProps) {
@@ -71,43 +66,53 @@ export default function Timer({initialTime = 180, resetSignal}: TimerProps) {
   }, [resetSignal]);
 
   return (
-    <div className="text-center">
-      <h2 className="text-xl font-bold mb-2">Countdown Timer</h2>
-      <div className="flex items-center justify-center gap-4 mb-4">
+    <div className="w-full max-w-md mx-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm p-6 text-center">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+        Timer
+      </h2>
+
+      <div className="flex items-center justify-center gap-6 mb-6">
         <button
           onClick={() => adjustTime(-15)}
           disabled={isRunning}
-          className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded disabled:opacity-50"
+          className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
         >
           -15s
         </button>
-        <p className="text-4xl font-mono">{formatTime(timeLeft)}</p>
+
+        <p className="text-5xl font-mono text-gray-900 dark:text-white">
+          {formatTime(timeLeft)}
+        </p>
+
         <button
           onClick={() => adjustTime(15)}
           disabled={isRunning}
-          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
+          className="text-sm px-4 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
         >
           +15s
         </button>
       </div>
-      <div className="flex justify-center gap-3">
+
+      <div className="flex flex-wrap justify-center gap-3">
         <button
           onClick={startCountdown}
           disabled={isRunning || timeLeft <= 0}
-          className="bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white rounded disabled:opacity-50"
+          className="px-5 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
         >
           Start
         </button>
+
         <button
           onClick={stopCountdown}
           disabled={!isRunning}
-          className="bg-red-600 hover:bg-red-700 px-4 py-2 text-white rounded disabled:opacity-50"
+          className="px-5 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition disabled:opacity-50"
         >
           Stop
         </button>
+
         <button
           onClick={resetCountdown}
-          className="bg-gray-600 hover:bg-gray-700 px-4 py-2 text-white rounded"
+          className="px-5 py-2 rounded-md border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
         >
           Reset
         </button>

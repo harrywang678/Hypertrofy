@@ -1,9 +1,8 @@
 "use client";
 
 import {useSession} from "next-auth/react";
-import {useRef} from "react";
-import {useRouter, useParams} from "next/navigation";
 import {useEffect, useState} from "react";
+import {useRouter, useParams} from "next/navigation";
 import AddExerciseForm from "@/components/AddExerciseForm";
 import Timer from "@/components/Timer";
 import ExerciseCard from "@/components/ExerciseCard";
@@ -33,14 +32,12 @@ export default function IndividualWorkoutPage() {
   const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [workout, setWorkout] = useState<any>(null);
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!session && status !== "loading") {
       router.replace("/api/auth/signin");
     }
   }, [session, status]);
 
-  // Fetch workout details
   const fetchWorkout = async () => {
     try {
       const res = await fetch(`/api/workouts/${workoutId}`);
@@ -59,17 +56,14 @@ export default function IndividualWorkoutPage() {
   if (status === "loading" || !session) return null;
 
   const handleSetComplete = () => {
-    setTimerResetSignal((prev) => prev + 1); // triggers timer reset
+    setTimerResetSignal((prev) => prev + 1);
   };
 
-  // Delete exercise handler
   const handleDeleteExercise = async (exerciseId: string) => {
     try {
       const res = await fetch(
         `/api/workouts/${workoutId}/exercises/${exerciseId}`,
-        {
-          method: "DELETE",
-        }
+        {method: "DELETE"}
       );
 
       if (!res.ok) {
@@ -77,7 +71,6 @@ export default function IndividualWorkoutPage() {
         throw new Error(data.error || "Failed to delete exercise");
       }
 
-      // Update state locally
       setWorkout((prev: any) => ({
         ...prev,
         exercises: prev.exercises.filter(
@@ -103,45 +96,57 @@ export default function IndividualWorkoutPage() {
 
       fetchWorkout();
     } catch (e: any) {
-      console.log(e);
-      throw new Error(e);
+      console.error(e);
+      alert("Failed to finish workout");
     }
   };
 
   return (
-    <div className="p-4 text-center">
-      {!workout?.finished && <Timer resetSignal={timerResetSignal} />}
+    <div className="max-w-4xl mx-auto px-4 py-8">
+      {!workout?.finished && (
+        <div className="mb-8">
+          <Timer resetSignal={timerResetSignal} />
+        </div>
+      )}
 
       {Array.isArray(workout?.exercises) && workout.exercises.length > 0 && (
-        <div className="mt-6 text-left">
-          <h3 className="text-lg font-semibold mb-2">
-            Exercises in This Workout:
-          </h3>
-          <ul className="bg-white text-black p-4 rounded shadow-md">
-            {workout.exercises.map((exercise: Exercise, index: number) => (
+        <section className="mb-10">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            Exercises in This Workout
+          </h2>
+          <ul className="space-y-6">
+            {workout.exercises.map((exercise: Exercise) => (
               <ExerciseCard
-                key={exercise._id || index}
+                key={exercise._id}
                 exercise={exercise}
                 workoutId={workoutId}
                 onDelete={handleDeleteExercise}
-                onSetAdded={fetchWorkout} // ✅ refresh after adding a set
+                onSetAdded={fetchWorkout}
                 finished={workout?.finished}
                 onSetComplete={handleSetComplete}
               />
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
       {!workout?.finished && (
-        <AddExerciseForm
-          workoutId={workoutId}
-          session={session}
-          onWorkoutUpdate={setWorkout}
-        />
-      )}
-      {!workout?.finished && (
-        <button onClick={handleFinishWorkout}> Finished This Workout </button>
+        <>
+          <AddExerciseForm
+            workoutId={workoutId}
+            session={session}
+            onWorkoutUpdate={setWorkout}
+          />
+
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleFinishWorkout}
+              className="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
+            >
+              Finish Workout
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

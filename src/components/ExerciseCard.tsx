@@ -23,7 +23,7 @@ interface ExerciseCardProps {
   exercise: Exercise;
   workoutId: string;
   onDelete: (exerciseId: string) => void;
-  onSetAdded?: () => void; // Optional callback to refresh after adding a set
+  onSetAdded?: () => void;
   finished?: boolean;
   onSetComplete?: () => void;
 }
@@ -124,14 +124,17 @@ export default function ExerciseCard({
   );
 
   return (
-    <li className="mb-6 p-4 bg-gray-900 rounded shadow-md text-white">
-      <div className="flex justify-between items-start mb-2">
+    <li className="mb-6 p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm text-gray-800 dark:text-gray-100">
+      <div className="flex justify-between items-start mb-3">
         <div>
-          <strong>{exercise.name}</strong> — {exercise.muscle} |{" "}
-          {exercise.equipment}
+          <h3 className="text-lg font-semibold mb-1">{exercise.name}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {exercise.muscle} &bull; {exercise.equipment}
+          </p>
+
           {exercise.sets && exercise.sets.length > 0 && (
-            <ul className="mt-2 ml-4 list-none text-sm space-y-1">
-              {exercise.sets.map((s, i) => (
+            <ul className="mt-3 space-y-2">
+              {exercise.sets.map((s) => (
                 <SetCard
                   key={s._id}
                   set={s}
@@ -145,17 +148,17 @@ export default function ExerciseCard({
             </ul>
           )}
         </div>
+
         {!finished && (
           <button
             onClick={handleDelete}
-            className="text-red-500 hover:text-red-700 text-sm"
+            className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition"
           >
-            Delete
+            Remove
           </button>
         )}
       </div>
 
-      {/* Add Set Form */}
       {!finished && (
         <AddSetForm
           reps={reps}

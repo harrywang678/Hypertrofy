@@ -20,7 +20,6 @@ export default function Home() {
 
         const data = await res.json();
         if (res.ok && data.user) {
-          // store the MongoDB user ID
           setMongoUserId(data.user._id);
         } else {
           console.error(data.error || "Failed to fetch Mongo user ID");
@@ -34,21 +33,50 @@ export default function Home() {
   }, [session]);
 
   return (
-    <div>
-      <div>This is The Home Page.</div>
-      <h2> Sign in With Google</h2>
-      {session?.user?.name ? (
-        <>
-          <h1> Welcome {session.user.name} </h1>
-          <h1> Your ID is {mongoUserId}</h1>
-          <h1> Your Email is {session?.user?.email} </h1>
-        </>
-      ) : (
-        <h1> You are not logged in (jayden is gay).</h1>
-      )}
-      <button onClick={() => signIn("google")}> Sign In</button>
-      <br></br>
-      <button onClick={() => signOut()}> Sign Out</button>
-    </div>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
+      <div className="text-center space-y-6">
+        <h1 className="text-4xl font-bold">Welcome to Liftly</h1>
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          Your personalized workout tracker.
+        </p>
+
+        {session ? (
+          <div className="space-y-3">
+            <p className="text-xl">
+              Hello, <span className="font-semibold">{session.user?.name}</span>
+              !
+            </p>
+            <p>
+              Email:{" "}
+              <span className="text-blue-600 dark:text-blue-400">
+                {session.user?.email}
+              </span>
+            </p>
+            <p>
+              User ID:{" "}
+              <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
+                {mongoUserId}
+              </code>
+            </p>
+            <button
+              onClick={() => signOut()}
+              className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
+            >
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <p className="text-lg">You are not signed in.</p>
+            <button
+              onClick={() => signIn("google")}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+            >
+              Sign In with Google
+            </button>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

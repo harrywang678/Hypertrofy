@@ -15,11 +15,6 @@ interface AddExerciseFormProps {
   onWorkoutUpdate: (updatedWorkout: any) => void;
 }
 
-interface Set {
-  reps: number;
-  weight: number;
-}
-
 export default function AddExerciseForm({
   workoutId,
   session,
@@ -32,7 +27,7 @@ export default function AddExerciseForm({
     const fetchExercises = async () => {
       try {
         const res = await fetch("/api/exercises?default=true");
-        if (!res.ok) throw new Error("Failed to fetch");
+        if (!res.ok) throw new Error("Failed to fetch exercises.");
         const data = await res.json();
         setDefaultExercises(data);
       } catch (error) {
@@ -83,26 +78,27 @@ export default function AddExerciseForm({
   };
 
   return (
-    <div className="mt-6 bg-black p-4 rounded shadow-md max-w-md mx-auto">
+    <div className="mt-8 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm max-w-xl mx-auto">
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmitExisting();
         }}
-        className="space-y-4"
+        className="space-y-5"
       >
         <div>
-          <label className="block font-medium mb-1 text-white">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Select Exercises
           </label>
-          <div className="space-y-2 max-h-64 overflow-y-auto bg-gray-800 p-2 rounded">
+          <div className="max-h-64 overflow-y-auto bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 space-y-2">
             {defaultExercises.map((exercise) => (
               <label
                 key={exercise._id}
-                className="flex items-center gap-2 text-white"
+                className="flex items-center gap-3 text-gray-800 dark:text-gray-100"
               >
                 <input
                   type="checkbox"
+                  className="accent-blue-600"
                   checked={selectedExercises.some(
                     (e) => e._id === exercise._id
                   )}
@@ -118,16 +114,16 @@ export default function AddExerciseForm({
                     }
                   }}
                 />
-                {exercise.name}
+                <span>{exercise.name}</span>
               </label>
             ))}
           </div>
         </div>
 
         {selectedExercises.length > 0 && (
-          <div className="text-white text-left">
-            <p className="font-semibold mt-2">Selected:</p>
-            <ul className="list-disc ml-5">
+          <div className="text-sm text-gray-700 dark:text-gray-200">
+            <p className="font-medium mb-1">Selected Exercises:</p>
+            <ul className="list-disc ml-5 space-y-1">
               {selectedExercises.map((ex) => (
                 <li key={ex._id}>{ex.name}</li>
               ))}
@@ -135,10 +131,10 @@ export default function AddExerciseForm({
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="pt-2">
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1"
+            className="w-full bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition"
           >
             Add Exercises
           </button>
