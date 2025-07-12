@@ -2,10 +2,14 @@ import {NextRequest, NextResponse} from "next/server";
 import {workouts} from "@/config/mongoCollections";
 import {ObjectId} from "mongodb";
 
-export async function DELETE(
-  req: NextRequest,
-  context: {params: {id: string; exerciseId: string}}
-) {
+type Params = {
+  params: {
+    id: string;
+    exerciseId: string;
+  };
+};
+
+export async function DELETE(req: NextRequest, context: Params) {
   try {
     const {id: workoutId, exerciseId} = context.params;
 
