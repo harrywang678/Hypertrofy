@@ -14,7 +14,7 @@ export default function NavBar() {
           href="/"
           className="text-2xl font-bold text-blue-600 dark:text-blue-400"
         >
-          Liftly
+          HyperTrofy
         </Link>
 
         {/* Nav Links */}
@@ -38,10 +38,10 @@ export default function NavBar() {
             {session && (
               <>
                 <li>
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/workouts/new">New Workout</Link>
                 </li>
                 <li>
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/workouts">My Workouts</Link>
                 </li>
               </>
             )}

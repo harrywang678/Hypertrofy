@@ -31,6 +31,7 @@ export default function IndividualWorkoutPage() {
 
   const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [workout, setWorkout] = useState<any>(null);
+  const [showAddExerciseForm, setshowAddExerciseForm] = useState(false);
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -131,6 +132,15 @@ export default function IndividualWorkoutPage() {
       )}
 
       {!workout?.finished && (
+        <button
+          className="mb-6 w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-100 font-medium py-2 px-4 rounded transition"
+          onClick={() => setshowAddExerciseForm(!showAddExerciseForm)}
+        >
+          {showAddExerciseForm ? "Hide Form" : "Add New Workout"}
+        </button>
+      )}
+
+      {!workout?.finished && showAddExerciseForm && (
         <>
           <AddExerciseForm
             workoutId={workoutId}
