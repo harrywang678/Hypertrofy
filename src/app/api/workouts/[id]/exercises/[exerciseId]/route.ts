@@ -2,16 +2,12 @@ import {NextRequest, NextResponse} from "next/server";
 import {workouts} from "@/config/mongoCollections";
 import {ObjectId} from "mongodb";
 
-type Params = {
-  params: {
-    id: string;
-    exerciseId: string;
-  };
-};
-
-export async function DELETE(req: NextRequest, context: Params) {
+export async function DELETE(
+  req: NextRequest,
+  {params}: {params: Promise<{id: string; exerciseId: string}>}
+) {
   try {
-    const {id: workoutId, exerciseId} = context.params;
+    const {id: workoutId, exerciseId} = await params;
 
     if (!ObjectId.isValid(workoutId) || !ObjectId.isValid(exerciseId)) {
       return NextResponse.json(
