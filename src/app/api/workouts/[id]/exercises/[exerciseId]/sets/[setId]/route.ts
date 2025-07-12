@@ -1,11 +1,11 @@
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {workouts} from "@/config/mongoCollections";
 import {ObjectId} from "mongodb";
 import * as validation from "@/validation";
 
 export async function DELETE(
-  req: Request,
-  {params}: {params: {id: string; exerciseId: string; setId: string}}
+  req: NextRequest,
+  {params}: {params: Promise<{id: string; exerciseId: string; setId: string}>}
 ) {
   try {
     let {id: workoutId, exerciseId, setId} = await params;
@@ -43,7 +43,7 @@ export async function DELETE(
 
 export async function PATCH(
   req: Request,
-  {params}: {params: {id: string; exerciseId: string; setId: string}}
+  {params}: {params: Promise<{id: string; exerciseId: string; setId: string}>}
 ) {
   try {
     let {id: workoutId, exerciseId, setId} = await params;
