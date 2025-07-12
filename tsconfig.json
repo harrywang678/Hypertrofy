@@ -29,7 +29,10 @@
     ".next/types/**/*.ts",
     "src/app/api/auth/[...nextauth]/route.js",
     "src/components/Provider.jsx",
-    "src/lib/auth.js"
+    "src/lib/auth.js",
+    "src/config/mongoCollections.js",
+    "src/config/mongoConnection.js",
+    "src/config/settings.js"
   ],
   "exclude": ["node_modules"]
 }
