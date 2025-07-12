@@ -5,7 +5,7 @@ import * as validation from "@/validation";
 
 export async function POST(
   req: Request,
-  {params}: {params: {id: string; exerciseId: string}}
+  {params}: {params: Promise<{id: string; exerciseId: string}>}
 ) {
   try {
     let {id: workoutId, exerciseId} = await params;
