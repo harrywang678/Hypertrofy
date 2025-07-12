@@ -27,9 +27,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/app/api/auth/[...nextauth]/route.js",
+    "src/app/api/auth/[...nextauth]/route.ts",
     "src/components/Provider.jsx",
-    "src/lib/auth.js",
+    "src/lib/auth.ts",
     "src/config/mongoCollections.js",
     "src/config/mongoConnection.js",
     "src/config/settings.js"

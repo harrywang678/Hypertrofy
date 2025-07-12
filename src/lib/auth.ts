@@ -1,18 +1,25 @@
 // lib/auth.ts
-import {NextAuthOptions} from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import {users} from "@/config/mongoCollections";
 import CredentialsProvider from "next-auth/providers/credentials";
-import Credentials from "next-auth/providers/credentials";
 import {loginUser} from "@/data/users";
-import {profileEnd} from "console";
 import {connectDB} from "@/config/database";
+import type {JWT} from "next-auth/jwt";
+import type {Session, User} from "next-auth";
 
 export const authOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientId:
+        process.env.GOOGLE_ID ??
+        (() => {
+          throw new Error("GOOGLE_ID is not set");
+        })(),
+      clientSecret:
+        process.env.GOOGLE_SECRET ??
+        (() => {
+          throw new Error("GOOGLE_SECRET is not set");
+        })(),
     }),
     CredentialsProvider({
       name: "credentials",
@@ -32,15 +39,17 @@ export const authOptions = {
           );
           console.log("Login result:", result);
           console.log("User from result:", result?.user);
-          console.log("User ID:", result?.user?.id);
+          console.log("User ID:", result?.user?._id);
 
           if (result && result.user) {
             // result.user exists because loginUser returns {user: ...}
             return {
-              id: result.user.id, // result.user.id exists and is a string
+              id:
+                typeof result.user._id === "string"
+                  ? result.user._id
+                  : result.user._id.toString(),
               email: result.user.email,
               name: result.user.name,
-              image: result.user.image || null,
             };
           }
 
@@ -54,19 +63,39 @@ export const authOptions = {
   ],
 
   callbacks: {
-    async session({session, token, user}) {
-      // console.log("session callback", {token, user, session});
-      session.user = token.user;
+    async session({
+      session,
+      token,
+      user,
+    }: {
+      session: Session;
+      token: JWT;
+      user?: User;
+    }) {
+      session.user = token.user as {
+        id: string;
+        name?: string | null;
+        email?: string | null;
+        image?: string | null;
+      };
+
       return session;
     },
 
-    async jwt({token, user, session}) {
-      // console.log("jwt callback", {token, user, session});
+    async jwt({token, user, session}: {token: JWT; user?: any; session?: any}) {
       if (user) token.user = user;
       return token;
     },
 
-    async signIn({user, account, profile}) {
+    async signIn({
+      user,
+      account,
+      profile,
+    }: {
+      user: any;
+      account: any;
+      profile?: any;
+    }) {
       // console.log("signIn callback", {user, account, profile});
 
       // Handle Google OAuth sign-in
