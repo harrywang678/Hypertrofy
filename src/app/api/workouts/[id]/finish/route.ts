@@ -1,9 +1,12 @@
-import {NextResponse} from "next/server";
+import {NextRequest, NextResponse} from "next/server";
 import {workouts} from "@/config/mongoCollections";
 import {ObjectId} from "mongodb";
 import * as validation from "@/validation";
 
-export async function PATCH(req: Request, {params}: {params: {id: string}}) {
+export async function PATCH(
+  req: NextRequest,
+  {params}: {params: Promise<{id: string}>}
+) {
   try {
     let {id} = await params;
 
