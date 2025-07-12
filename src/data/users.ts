@@ -98,7 +98,7 @@ export const loginUser = async (
     const {password: _pass, _id, ...userWithoutPassword} = userExists;
     const completedUserWithoutPassword: Omit<User, "password"> = {
       ...userWithoutPassword,
-      id: _id.toString(),
+      _id: _id.toString(),
     };
 
     return {loginComplete: true, user: completedUserWithoutPassword};
