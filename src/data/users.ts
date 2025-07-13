@@ -19,7 +19,7 @@ export const registerUser = async (
 ): Promise<{
   signupComplete: boolean;
   user?: Omit<User, "password">;
-  error?: string;
+  error?: Error;
 }> => {
   try {
     firstName = validation.isValidName(firstName, "First Name");
@@ -37,7 +37,7 @@ export const registerUser = async (
     });
 
     if (alreadyAUser) {
-      throw "There is a already an account with this Email.";
+      throw new Error("There is a already an account with this Email.");
     }
 
     const newUser: Omit<User, "_id"> = {
@@ -51,7 +51,7 @@ export const registerUser = async (
 
     const insertUser = await userCollection.insertOne(newUser);
     if (!insertUser.acknowledged || !insertUser.insertedId) {
-      throw "Server Error: Could not create new user.";
+      throw new Error("Server Error: Could not create new user.");
     }
 
     const createdUser = await userCollection.findOne({
@@ -64,9 +64,8 @@ export const registerUser = async (
     };
 
     return {signupComplete: true, user: completedUserWithoutPassword as User};
-  } catch (e: any) {
-    console.log(e);
-    return {signupComplete: false, error: e};
+  } catch (e: Error | any) {
+    return {signupComplete: false, error: e.message ? e.message : e};
   }
 };
 export const loginUser = async (
