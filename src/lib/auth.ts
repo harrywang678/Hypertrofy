@@ -37,9 +37,6 @@ export const authOptions = {
             credentials.email,
             credentials.password
           );
-          console.log("Login result:", result);
-          console.log("User from result:", result?.user);
-          console.log("User ID:", result?.user?._id);
 
           if (result && result.user) {
             // result.user exists because loginUser returns {user: ...}

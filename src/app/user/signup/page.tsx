@@ -42,7 +42,9 @@ export default function SignUpForm() {
       const result = await registerUserAction(formData);
       if (result.error) {
         setError(
-          result.error instanceof Error ? result.error.message : result.error
+          typeof result.error === "string"
+            ? result.error
+            : "An unexpected error occurred"
         );
       } else {
         router.push("/user/login");
@@ -58,7 +60,7 @@ export default function SignUpForm() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <h1 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">
-          Create your Liftly account
+          Create your HyperTrofy Account
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">

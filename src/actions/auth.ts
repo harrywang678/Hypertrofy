@@ -18,7 +18,7 @@ export async function registerUserAction(formData: FormData) {
   );
 
   if (result.error) {
-    return {error: result.error};
+    return {error: result.error || "Unknown error occurred"};
   }
 
   return {success: true};
