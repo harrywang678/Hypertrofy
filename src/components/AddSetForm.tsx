@@ -22,14 +22,14 @@ export default function AddSetForm({
         placeholder="Reps"
         value={reps}
         onChange={(e) => onRepsChange(e.target.value)}
-        className="w-20 px-2 py-1 border rounded text-white"
+        className="w-18 px-2 py-1 border rounded text-white"
       />
       <input
         type="number"
         placeholder="Weight"
         value={weight}
         onChange={(e) => onWeightChange(e.target.value)}
-        className="w-20 px-2 py-1 border rounded text-white"
+        className="w-22 px-2 py-1 border rounded text-white"
       />
       <button
         onClick={onSubmit}

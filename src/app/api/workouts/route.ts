@@ -1,5 +1,7 @@
 import {createWorkout, getWorkoutById} from "@/data/workouts";
 import {NextResponse, NextRequest} from "next/server";
+import {ObjectId} from "mongodb";
+import {workouts} from "@/config/mongoCollections";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,18 +33,15 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const {searchParams} = new URL(req.url);
-    const id = searchParams.get("id");
+    const workoutCollection = await workouts();
 
-    if (!id) {
-      return NextResponse.json(
-        {error: "Workout ID is required"},
-        {status: 400}
-      );
+    const allWorkouts = await workoutCollection.find().toArray();
+
+    if (!allWorkouts) {
+      return NextResponse.json({error: "No workouts found"}, {status: 404});
     }
 
-    const workout = await getWorkoutById(id);
-    return NextResponse.json(workout);
+    return NextResponse.json(allWorkouts, {status: 200});
   } catch (e: any) {
     return NextResponse.json(
       {error: e.message || "Failed to fetch workout"},

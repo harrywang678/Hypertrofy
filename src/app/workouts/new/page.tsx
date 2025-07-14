@@ -20,31 +20,6 @@ export default function NewWorkoutPage() {
     }
   }, [session, status, router]);
 
-  useEffect(() => {
-    const fetchMongoUserId = async () => {
-      if (!session?.user?.email) return;
-
-      try {
-        const res = await fetch("/api/users/by-email", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({email: session.user.email}),
-        });
-
-        const data = await res.json();
-        if (res.ok && data.user) {
-          setMongoUserId(data.user._id);
-        } else {
-          console.error(data.error || "Failed to fetch Mongo user ID");
-        }
-      } catch (err) {
-        console.error("Failed to fetch Mongo user ID:", err);
-      }
-    };
-
-    fetchMongoUserId();
-  }, [session]);
-
   const createWorkout = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -55,7 +30,7 @@ export default function NewWorkoutPage() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-          userId: mongoUserId,
+          userId: session?.user?.id,
           name,
           notes,
         }),

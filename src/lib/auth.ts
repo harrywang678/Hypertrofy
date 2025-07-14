@@ -89,25 +89,25 @@ export const authOptions = {
       account,
       profile,
     }: {
-      user: any;
-      account: any;
+      user: User;
+      account?: any;
       profile?: any;
     }) {
-      // console.log("signIn callback", {user, account, profile});
-
-      // Handle Google OAuth sign-in
       if (account?.provider === "google" && profile?.email) {
         try {
-          await connectDB();
           const usersCollection = await users();
+          console.log("account", account);
+          console.log("profile", profile);
 
-          const userExists = await usersCollection.findOne({
+          const existingUser = await usersCollection.findOne({
             email: profile.email,
           });
 
-          if (!userExists) {
+          let mongoUser = existingUser;
+
+          if (!existingUser) {
             const now = new Date();
-            await usersCollection.insertOne({
+            const result = await usersCollection.insertOne({
               email: profile.email,
               name: profile.name,
               image: profile.picture,
@@ -115,17 +115,16 @@ export const authOptions = {
               updatedAt: now,
               friends: [],
             });
+            mongoUser = await usersCollection.findOne({_id: result.insertedId});
           }
+
+          // ✅ Set user.id to MongoDB _id
+          user.id = mongoUser._id.toString();
+          console.log("User signed in:", user.id);
         } catch (error) {
           console.error("Error handling Google sign-in:", error);
           return false;
         }
-      }
-
-      // Handle credentials sign-in
-      if (account?.provider === "credentials") {
-        // Credentials provider already validated the user in authorize()
-        return true;
       }
 
       return true;

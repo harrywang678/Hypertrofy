@@ -32,6 +32,8 @@ export default function IndividualWorkoutPage() {
   const [timerResetSignal, setTimerResetSignal] = useState(0);
   const [workout, setWorkout] = useState<any>(null);
   const [showAddExerciseForm, setshowAddExerciseForm] = useState(false);
+  const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]);
+  const [elapsedDuration, setElapsedDuration] = useState(0);
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -59,6 +61,21 @@ export default function IndividualWorkoutPage() {
   const handleSetComplete = () => {
     setTimerResetSignal((prev) => prev + 1);
   };
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const res = await fetch("/api/exercises?default=true");
+        if (!res.ok) throw new Error("Failed to fetch exercises.");
+        const data = await res.json();
+        setDefaultExercises(data);
+      } catch (error) {
+        console.error("Error fetching exercises:", error);
+      }
+    };
+
+    fetchExercises();
+  }, []);
 
   const handleDeleteExercise = async (exerciseId: string) => {
     try {
@@ -88,6 +105,8 @@ export default function IndividualWorkoutPage() {
     try {
       const res = await fetch(`/api/workouts/${workoutId}/finish`, {
         method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({duration: elapsedDuration}),
       });
 
       if (!res.ok) {
@@ -102,11 +121,18 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  const hasIncompleteSets = workout?.exercises?.some((exercise: Exercise) =>
+    exercise.sets?.some((set) => !set.completed)
+  );
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {!workout?.finished && (
         <div className="mb-8">
-          <Timer resetSignal={timerResetSignal} />
+          <Timer
+            resetSignal={timerResetSignal}
+            onDurationUpdate={(seconds) => setElapsedDuration(seconds)}
+          />
         </div>
       )}
 
@@ -146,17 +172,22 @@ export default function IndividualWorkoutPage() {
             workoutId={workoutId}
             session={session}
             onWorkoutUpdate={setWorkout}
+            setshowAddExerciseForm={setshowAddExerciseForm}
+            defaultExercises={defaultExercises}
           />
-
-          <div className="mt-8 text-center">
-            <button
-              onClick={handleFinishWorkout}
-              className="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
-            >
-              Finish Workout
-            </button>
-          </div>
         </>
+      )}
+
+      {!workout?.finished && (
+        <div className="mt-8 text-center">
+          <button
+            disabled={hasIncompleteSets}
+            onClick={handleFinishWorkout}
+            className="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
+          >
+            Finish Workout
+          </button>
+        </div>
       )}
     </div>
   );

@@ -10,12 +10,8 @@ export default function SignUpForm() {
   const router = useRouter();
   const {data: session} = useSession();
 
-  useEffect(() => {
-    if (session) {
-      router.replace("/");
-    }
-  }, [session]);
-
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -23,8 +19,11 @@ export default function SignUpForm() {
     password: "",
   });
 
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  useEffect(() => {
+    if (session) {
+      router.replace("/");
+    }
+  }, [session]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({...form, [e.target.name]: e.target.value});

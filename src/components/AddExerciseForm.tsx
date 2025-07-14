@@ -13,36 +13,24 @@ interface AddExerciseFormProps {
   workoutId: string;
   session: any;
   onWorkoutUpdate: (updatedWorkout: any) => void;
+  setshowAddExerciseForm?: (show: boolean) => void;
+  defaultExercises?: Exercise[];
 }
 
 export default function AddExerciseForm({
   workoutId,
   session,
   onWorkoutUpdate,
+  setshowAddExerciseForm,
+  defaultExercises,
 }: AddExerciseFormProps) {
-  const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]);
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        const res = await fetch("/api/exercises?default=true");
-        if (!res.ok) throw new Error("Failed to fetch exercises.");
-        const data = await res.json();
-        setDefaultExercises(data);
-      } catch (error) {
-        console.error("Error fetching exercises:", error);
-      }
-    };
-    fetchExercises();
-  }, []);
 
   const handleSubmitExisting = async () => {
     if (selectedExercises.length === 0) {
       alert("Please select at least one exercise.");
       return;
     }
-
     try {
       const res = await fetch(`/api/workouts/${workoutId}/addExercises`, {
         method: "POST",
@@ -68,6 +56,7 @@ export default function AddExerciseForm({
       if (refreshedWorkoutRes.ok) {
         const refreshedWorkout = await refreshedWorkoutRes.json();
         onWorkoutUpdate(refreshedWorkout);
+        if (setshowAddExerciseForm) setshowAddExerciseForm(false);
       } else {
         console.error("Failed to refresh workout after adding exercises");
       }
@@ -91,7 +80,7 @@ export default function AddExerciseForm({
             Select Exercises
           </label>
           <div className="max-h-64 overflow-y-auto bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 space-y-2">
-            {defaultExercises.map((exercise) => (
+            {defaultExercises?.map((exercise) => (
               <label
                 key={exercise._id}
                 className="flex items-center gap-3 text-gray-800 dark:text-gray-100"

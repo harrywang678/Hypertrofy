@@ -5,37 +5,11 @@ import {useEffect, useState} from "react";
 
 export default function Home() {
   const {data: session} = useSession();
-  const [mongoUserId, setMongoUserId] = useState("");
-
-  useEffect(() => {
-    const fetchMongoUserId = async () => {
-      if (!session?.user?.email) return;
-
-      try {
-        const res = await fetch("/api/users/by-email", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({email: session.user.email}),
-        });
-
-        const data = await res.json();
-        if (res.ok && data.user) {
-          setMongoUserId(data.user._id);
-        } else {
-          console.error(data.error || "Failed to fetch Mongo user ID");
-        }
-      } catch (err) {
-        console.error("Failed to fetch Mongo user ID:", err);
-      }
-    };
-
-    fetchMongoUserId();
-  }, [session]);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
       <div className="text-center space-y-6">
-        <h1 className="text-4xl font-bold">Welcome to Liftly</h1>
+        <h1 className="text-4xl font-bold">Welcome to HyperTrofy</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Your personalized workout tracker.
         </p>
@@ -55,7 +29,7 @@ export default function Home() {
             <p>
               User ID:{" "}
               <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
-                {mongoUserId}
+                {session.user?.id || "Not available"}
               </code>
             </p>
             <button

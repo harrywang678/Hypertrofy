@@ -9,24 +9,42 @@ export async function PATCH(
 ) {
   try {
     let {id} = await params;
-
-    console.log(id);
-
     let workoutId = validation.checkIsProperID(id);
 
     const workoutCollection = await workouts();
 
-    const result = await workoutCollection.findOneAndUpdate(
-      {_id: new ObjectId(workoutId)},
-      {$set: {finished: true}},
-      {returnDocument: "after"}
-    );
-
-    if (!result) {
+    const workout = await workoutCollection.findOne({
+      _id: new ObjectId(workoutId),
+    });
+    if (!workout) {
       return NextResponse.json({error: "Workout not found"}, {status: 404});
     }
 
-    return NextResponse.json(result); // updated workout
+    if (!workout.startTime) {
+      return NextResponse.json(
+        {error: "Workout is missing a start time"},
+        {status: 400}
+      );
+    }
+
+    const startTime = new Date(workout.startTime);
+    const now = new Date();
+    const durationInSeconds = Math.floor(
+      (now.getTime() - startTime.getTime()) / 1000
+    );
+
+    const result = await workoutCollection.findOneAndUpdate(
+      {_id: new ObjectId(workoutId)},
+      {
+        $set: {
+          finished: true,
+          duration: durationInSeconds,
+        },
+      },
+      {returnDocument: "after"}
+    );
+
+    return NextResponse.json(result); // Send the updated workout
   } catch (err: any) {
     console.error("PATCH /finish error:", err);
     return NextResponse.json({error: "Internal server error"}, {status: 500});

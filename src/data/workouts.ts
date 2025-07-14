@@ -25,10 +25,13 @@ export const createWorkout = async (
 
     let newWorkout = {
       userId: new ObjectId(userId),
+      date: new Date(),
       name,
       notes,
       exercises: [],
       finished: false,
+      startTime: new Date(), // needed for duration calculation
+      duration: null,
     };
 
     const insertedWorkout = await workoutCollection.insertOne(newWorkout);
