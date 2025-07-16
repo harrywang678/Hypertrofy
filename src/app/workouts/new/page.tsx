@@ -12,7 +12,6 @@ export default function NewWorkoutPage() {
   const [notes, setNotes] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mongoUserId, setMongoUserId] = useState("");
 
   useEffect(() => {
     if (!session && status !== "loading") {

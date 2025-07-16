@@ -17,9 +17,12 @@ export default function UserWorkouts() {
   const [userWorkouts, setUserWorkouts] = useState<Workout[]>([]);
 
   useEffect(() => {
-    const fetchWorkouts = async () => {
+    const fetchAllWorkouts = async () => {
       try {
-        const res = await fetch("/api/workouts/user");
+        const res = await fetch("/api/workouts/user", {
+          method: "GET",
+          headers: {"Content-Type": "application/json"},
+        });
         if (!res.ok) throw new Error("Failed to fetch workouts");
         const data = await res.json();
         setUserWorkouts(data);
@@ -28,8 +31,27 @@ export default function UserWorkouts() {
       }
     };
 
-    fetchWorkouts();
+    fetchAllWorkouts();
   }, []);
+
+  const handleDeleteWorkout = async (id: string) => {
+    try {
+      const res = await fetch(`/api/workouts/${id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete workout");
+      }
+
+      setUserWorkouts((prev) => prev.filter((workout) => workout._id !== id));
+    } catch (error: any) {
+      console.error("Error deleting workout:", error);
+      alert("Failed to delete workout: " + error.message);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -45,8 +67,8 @@ export default function UserWorkouts() {
         <ul className="space-y-6">
           {userWorkouts.map((workout) => (
             <li key={workout._id}>
-              <Link href={`/workouts/${workout._id}`}>
-                <div className="cursor-pointer border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200">
+              <div className="cursor-pointer border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition-transform duration-200">
+                <Link href={`/workouts/${workout._id}`}>
                   <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
                     {workout.name}
                   </h3>
@@ -62,8 +84,11 @@ export default function UserWorkouts() {
                     <span className="font-medium">Exercises:</span>{" "}
                     {workout.exercises.length || "No exercises logged"}
                   </p>
-                </div>
-              </Link>
+                </Link>
+              </div>
+              <button onClick={() => handleDeleteWorkout(workout._id)}>
+                Delete
+              </button>
             </li>
           ))}
         </ul>

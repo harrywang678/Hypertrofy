@@ -34,6 +34,8 @@ export default function IndividualWorkoutPage() {
   const [showAddExerciseForm, setshowAddExerciseForm] = useState(false);
   const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]);
   const [elapsedDuration, setElapsedDuration] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -47,7 +49,10 @@ export default function IndividualWorkoutPage() {
       if (!res.ok) throw new Error("Failed to fetch workout");
       const data = await res.json();
       setWorkout(data);
+      setLoading(false);
     } catch (err) {
+      setError("Failed to load workout");
+      setLoading(false);
       console.error("Error fetching workout:", err);
     }
   };
@@ -76,6 +81,26 @@ export default function IndividualWorkoutPage() {
 
     fetchExercises();
   }, []);
+
+  const handleDeleteWorkout = async () => {
+    try {
+      const res = await fetch(`/api/workouts/${workoutId}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to delete workout");
+      }
+
+      alert("Workout deleted successfully");
+      router.push("/");
+    } catch (e: any) {
+      console.error("Error deleting workout:", e);
+      alert("Failed to delete workout: " + e.message);
+    }
+  };
 
   const handleDeleteExercise = async (exerciseId: string) => {
     try {
@@ -124,6 +149,14 @@ export default function IndividualWorkoutPage() {
   const hasIncompleteSets = workout?.exercises?.some((exercise: Exercise) =>
     exercise.sets?.some((set) => !set.completed)
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-600 dark:text-gray-300">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -179,7 +212,14 @@ export default function IndividualWorkoutPage() {
       )}
 
       {!workout?.finished && (
-        <div className="mt-8 text-center">
+        <div className="mt-8 flex justify-center space-x-4">
+          <button
+            onClick={handleDeleteWorkout}
+            className="bg-red-800 text-white px-6 py-2 rounded hover:bg-red-700 transition"
+          >
+            {" "}
+            Discard Workout{" "}
+          </button>
           <button
             disabled={hasIncompleteSets}
             onClick={handleFinishWorkout}
