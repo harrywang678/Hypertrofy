@@ -150,7 +150,6 @@ export default function SignUpForm() {
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-2">
             Or sign up with Google
           </p>
-          <GoogleButton className="w-full" onClick={() => signIn("google")} />
         </div>
       </div>
     </main>
