@@ -4,7 +4,6 @@ import {useState, useEffect} from "react";
 import {registerUserAction} from "@/actions/auth";
 import {useRouter} from "next/navigation";
 import {useSession, signIn} from "next-auth/react";
-import GoogleButton from "react-google-button";
 
 export default function SignUpForm() {
   const router = useRouter();
