@@ -53,7 +53,7 @@ export default function NewWorkoutPage() {
     <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <h1 className="text-2xl font-semibold text-center text-gray-800 dark:text-gray-100 mb-6">
-          Dashboard
+          New Workout
         </h1>
 
         <form onSubmit={createWorkout} className="space-y-5">

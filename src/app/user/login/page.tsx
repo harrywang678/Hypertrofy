@@ -14,7 +14,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (session) {
-      router.replace("/dashboard");
+      router.replace("/");
     }
   }, [session, router]);
 
@@ -35,7 +35,7 @@ export default function LoginForm() {
       });
 
       if (result && !result.error) {
-        router.push("/dashboard");
+        router.push("/");
       } else {
         setError(result?.error || "Invalid email or password.");
       }

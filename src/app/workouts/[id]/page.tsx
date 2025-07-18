@@ -24,18 +24,18 @@ interface Exercise {
 }
 
 export default function IndividualWorkoutPage() {
-  const router = useRouter();
-  const {data: session, status} = useSession();
-  const params = useParams();
-  const workoutId = params?.id as string;
+  const router = useRouter(); // Router for navigation
+  const {data: session, status} = useSession(); // Session data from NextAuth
+  const params = useParams(); // Get URL parameters
+  const workoutId = params?.id as string; // Extract workout ID from URL parameters
 
-  const [timerResetSignal, setTimerResetSignal] = useState(0);
-  const [workout, setWorkout] = useState<any>(null);
-  const [showAddExerciseForm, setshowAddExerciseForm] = useState(false);
-  const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]);
-  const [elapsedDuration, setElapsedDuration] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [timerResetSignal, setTimerResetSignal] = useState(0); // Timer for Complete Set
+  const [workout, setWorkout] = useState<any>(null); // Current Workout Data
+  const [showAddExerciseForm, setshowAddExerciseForm] = useState(false); // Toggle for Add Exercise Form
+  const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]); // Default Exercises for Form
+  const [elapsedDuration, setElapsedDuration] = useState(0); // Elapsed Duration for Workout
+  const [loading, setLoading] = useState(true); // Loading State
+  const [error, setError] = useState<string | null>(null); // Error State
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -43,6 +43,7 @@ export default function IndividualWorkoutPage() {
     }
   }, [session, status]);
 
+  // Fetch the workout data from the API
   const fetchWorkout = async () => {
     try {
       const res = await fetch(`/api/workouts/${workoutId}`);
@@ -57,16 +58,16 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  // Fetch workout data when component mounts or workoutId changes
   useEffect(() => {
     if (workoutId) fetchWorkout();
   }, [workoutId]);
-
-  if (status === "loading" || !session) return null;
 
   const handleSetComplete = () => {
     setTimerResetSignal((prev) => prev + 1);
   };
 
+  // Fetch default exercises for the Add Exercise Form
   useEffect(() => {
     const fetchExercises = async () => {
       try {
@@ -82,6 +83,7 @@ export default function IndividualWorkoutPage() {
     fetchExercises();
   }, []);
 
+  // Handle deletion of the workout
   const handleDeleteWorkout = async () => {
     try {
       const res = await fetch(`/api/workouts/${workoutId}`, {
@@ -102,6 +104,7 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  // Handle deletion of an exercise
   const handleDeleteExercise = async (exerciseId: string) => {
     try {
       const res = await fetch(
@@ -126,6 +129,7 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  // Handle finishing the workout
   const handleFinishWorkout = async () => {
     try {
       const res = await fetch(`/api/workouts/${workoutId}/finish`, {
@@ -146,10 +150,12 @@ export default function IndividualWorkoutPage() {
     }
   };
 
+  // Check if there are any incomplete sets in the workout
   const hasIncompleteSets = workout?.exercises?.some((exercise: Exercise) =>
     exercise.sets?.some((set) => !set.completed)
   );
 
+  // If loading, show a loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -158,6 +164,16 @@ export default function IndividualWorkoutPage() {
     );
   }
 
+  // If there's an error, show an error message
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-600 dark:text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  // Render the workout page
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {!workout?.finished && (
@@ -203,7 +219,6 @@ export default function IndividualWorkoutPage() {
         <>
           <AddExerciseForm
             workoutId={workoutId}
-            session={session}
             onWorkoutUpdate={setWorkout}
             setshowAddExerciseForm={setshowAddExerciseForm}
             defaultExercises={defaultExercises}

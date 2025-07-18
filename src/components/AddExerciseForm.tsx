@@ -10,16 +10,14 @@ interface Exercise {
 }
 
 interface AddExerciseFormProps {
-  workoutId: string;
-  session: any;
-  onWorkoutUpdate: (updatedWorkout: any) => void;
+  workoutId?: string;
+  onWorkoutUpdate?: (updatedWorkout: any) => void;
   setshowAddExerciseForm?: (show: boolean) => void;
   defaultExercises?: Exercise[];
 }
 
 export default function AddExerciseForm({
   workoutId,
-  session,
   onWorkoutUpdate,
   setshowAddExerciseForm,
   defaultExercises,
