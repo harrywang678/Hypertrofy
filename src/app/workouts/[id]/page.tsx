@@ -36,6 +36,7 @@ export default function IndividualWorkoutPage() {
   const [elapsedDuration, setElapsedDuration] = useState(0); // Elapsed Duration for Workout
   const [loading, setLoading] = useState(true); // Loading State
   const [error, setError] = useState<string | null>(null); // Error State
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {
     if (!session && status !== "loading") {
@@ -74,6 +75,7 @@ export default function IndividualWorkoutPage() {
         const res = await fetch("/api/exercises?default=true");
         if (!res.ok) throw new Error("Failed to fetch exercises.");
         const data = await res.json();
+        console.log("Default Exercises:", data);
         setDefaultExercises(data);
       } catch (error) {
         console.error("Error fetching exercises:", error);
@@ -222,6 +224,9 @@ export default function IndividualWorkoutPage() {
             onWorkoutUpdate={setWorkout}
             setshowAddExerciseForm={setshowAddExerciseForm}
             defaultExercises={defaultExercises}
+            addFormWorkout={true}
+            selectedExercises={selectedExercises}
+            setSelectedExercises={setSelectedExercises}
           />
         </>
       )}
