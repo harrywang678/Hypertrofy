@@ -43,6 +43,12 @@ export default function NavBar() {
                 <li>
                   <Link href="/workouts">My Workouts</Link>
                 </li>
+                <li>
+                  <Link href="/routines/new">New Routine</Link>
+                </li>
+                <li>
+                  <Link href="/routines">My Routines</Link>
+                </li>
               </>
             )}
           </ul>

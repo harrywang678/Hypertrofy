@@ -25,7 +25,6 @@ interface AddExerciseFormProps {
   defaultExercises?: Exercise[];
   addFormRoutine?: boolean;
   addFormWorkout?: boolean;
-  selectedExercises?: Exercise[];
   setSelectedExercises?: React.Dispatch<React.SetStateAction<Exercise[]>>;
   onAddExercise?: (exercise: Exercise[]) => void;
 }
@@ -37,7 +36,6 @@ const AddExerciseForm = memo(function AddExerciseForm({
   defaultExercises,
   addFormRoutine,
   addFormWorkout,
-  selectedExercises = [],
   setSelectedExercises,
   onAddExercise,
 }: AddExerciseFormProps) {

@@ -68,7 +68,7 @@ export default function ExerciseCard({
 
       setReps("");
       setWeight("");
-      if (onSetAdded) await onSetAdded();
+      if (onSetAdded) onSetAdded();
     } catch (err: any) {
       alert("Error adding set: " + err.message);
     } finally {
@@ -89,7 +89,7 @@ export default function ExerciseCard({
           throw new Error(data.error || "Failed to delete set");
         }
 
-        if (onSetAdded) await onSetAdded();
+        if (onSetAdded) onSetAdded();
       } catch (e: any) {
         alert("Error deleting set: " + e.message);
         console.error(e);
@@ -113,8 +113,8 @@ export default function ExerciseCard({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to update set");
 
-        if (onSetAdded) await onSetAdded();
-        if (onSetComplete && completed === true) await onSetComplete();
+        if (onSetAdded) onSetAdded();
+        if (onSetComplete && completed === true) onSetComplete();
       } catch (err: any) {
         alert("Failed to complete set: " + err.message);
         console.error(err);

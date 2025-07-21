@@ -13,11 +13,30 @@ export async function POST(
 
     workoutId = validation.checkIsProperID(workoutId);
     exerciseId = validation.checkIsProperID(exerciseId);
+    const reps = body.reps;
+    const weight = body.weight;
+    if (reps === undefined || weight === undefined) {
+      return NextResponse.json(
+        {error: "Reps and weight are required"},
+        {status: 400}
+      );
+    }
+    if (
+      !Number.isInteger(reps) ||
+      !Number.isInteger(weight) ||
+      reps <= 0 ||
+      weight <= 0
+    ) {
+      return NextResponse.json(
+        {error: "Reps and weight must be positive integers"},
+        {status: 400}
+      );
+    }
 
     const newSet = {
       _id: new ObjectId(),
-      reps: body.reps,
-      weight: body.weight,
+      reps: reps,
+      weight: weight,
       completed: false,
     };
 
