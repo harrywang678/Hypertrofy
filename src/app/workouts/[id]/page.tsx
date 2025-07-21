@@ -225,7 +225,6 @@ export default function IndividualWorkoutPage() {
             setshowAddExerciseForm={setshowAddExerciseForm}
             defaultExercises={defaultExercises}
             addFormWorkout={true}
-            selectedExercises={selectedExercises}
             setSelectedExercises={setSelectedExercises}
           />
         </>
