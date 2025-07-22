@@ -6,22 +6,18 @@ import Link from "next/link";
 
 const getActiveWorkout = async () => {
   const response = await fetch('/api/workouts/unfinished');
-  console.log(response);
   const unfinishedWorkout = await response.json();
   return unfinishedWorkout;
 };
 
 export default function Home() {
   const {data: session} = useSession();
-
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchActiveWorkout = async () => {
       const activeWorkout = await getActiveWorkout();
       setActiveWorkout(activeWorkout);
-      setLoading(false);
     };
     fetchActiveWorkout();
   }, [session]);
