@@ -2,9 +2,29 @@
 
 import {useSession, signIn, signOut} from "next-auth/react";
 import {useEffect, useState} from "react";
+import Link from "next/link";
+
+const getActiveWorkout = async () => {
+  const response = await fetch('/api/workouts/unfinished');
+  console.log(response);
+  const unfinishedWorkout = await response.json();
+  return unfinishedWorkout;
+};
 
 export default function Home() {
   const {data: session} = useSession();
+
+  const [activeWorkout, setActiveWorkout] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchActiveWorkout = async () => {
+      const activeWorkout = await getActiveWorkout();
+      setActiveWorkout(activeWorkout);
+      setLoading(false);
+    };
+    fetchActiveWorkout();
+  }, [session]);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
@@ -20,6 +40,31 @@ export default function Home() {
               Hello, <span className="font-semibold">{session.user?.name}</span>
               !
             </p>
+
+            <div className="space-y-2">
+              {activeWorkout?._id ? (
+                <Link href={`/workouts/${activeWorkout._id}`} className="block hover:bg-blue-100 dark:hover:bg-blue-900 rounded p-2 transition">
+                  <h2 className="text-xl font-bold"> Current Active Workout </h2> 
+                    <p>
+                      <span className="font-semibold">Workout Name:</span>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {activeWorkout?.name || "No active workout"}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-semibold">Workout Notes:</span>
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {activeWorkout?.notes || "No notes available"}
+                      </span>
+                    </p>
+                </Link>
+              ) : (
+                <Link href="/workouts/new" className="block hover:bg-blue-100 dark:hover:bg-blue-900 rounded p-2 transition">
+                  <h2 className="text-xl font-bold"> Create a New Workout </h2>
+                </Link>
+              )}
+            </div>
+
             <p>
               Email:{" "}
               <span className="text-blue-600 dark:text-blue-400">
