@@ -4,20 +4,19 @@ import {useSession, signIn, signOut} from "next-auth/react";
 import {useEffect, useState} from "react";
 import Link from "next/link";
 
-const getActiveWorkout = async () => {
-  const response = await fetch('/api/workouts/unfinished');
-  const unfinishedWorkout = await response.json();
-  return unfinishedWorkout;
-};
-
 export default function Home() {
   const {data: session} = useSession();
   const [activeWorkout, setActiveWorkout] = useState<any>(null);
 
   useEffect(() => {
     const fetchActiveWorkout = async () => {
-      const activeWorkout = await getActiveWorkout();
-      setActiveWorkout(activeWorkout);
+      try {
+        const response = await fetch('/api/workouts/unfinished');
+        const unfinishedWorkout = await response.json();
+        setActiveWorkout(unfinishedWorkout);
+      } catch (error) {
+        console.error("Error fetching active workout:", error);
+      }
     };
     fetchActiveWorkout();
   }, [session]);
