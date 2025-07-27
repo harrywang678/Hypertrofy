@@ -1,23 +1,25 @@
 import {useSession} from "next-auth/react";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 
 export const useAuth = (redirectTo: string = "/api/auth/signin") => {
   const {data: session, status} = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
-  const isLoading = status === "loading";
   const isAuthenticated = !!session;
 
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
+    if (!isAuthenticated) {
       router.replace(redirectTo);
     }
-  }, [isAuthenticated, isLoading, router, redirectTo]);
+
+    setLoading(false);
+  }, [isAuthenticated, router, redirectTo]);
 
   return {
     session,
-    isLoading,
+    loading,
     isAuthenticated,
     user: session?.user,
   };

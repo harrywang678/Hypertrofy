@@ -24,5 +24,5 @@ export const useWorkout = (workoutId: string) => {
     if (workoutId) fetchWorkout();
   }, [workoutId]);
 
-  return {workout, setWorkout, loading, error, refetch: fetchWorkout};
+  return {workout, setWorkout, loading, error, fetchWorkout};
 };

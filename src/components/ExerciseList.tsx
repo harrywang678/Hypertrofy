@@ -1,23 +1,24 @@
 "use client";
+import React from "react";
 import {Exercise} from "@/types/workout";
 import ExerciseCard from "@/components/ExerciseCard";
 
 interface ExerciseListProps {
   exercises: Exercise[];
   workoutId: string;
-  finished: boolean;
+  workoutFinished: boolean;
   onDeleteExercise: (exerciseId: string) => void;
-  onSetAdded: () => void;
-  onSetComplete: () => void;
+  fetchWorkout: () => void;
+  handleTimerSignal: () => void;
 }
 
-export default function ExerciseList({
+function ExerciseList({
   exercises,
   workoutId,
-  finished,
+  workoutFinished,
   onDeleteExercise,
-  onSetAdded,
-  onSetComplete,
+  fetchWorkout,
+  handleTimerSignal,
 }: ExerciseListProps) {
   if (!exercises?.length) return null;
 
@@ -33,12 +34,14 @@ export default function ExerciseList({
             exercise={exercise}
             workoutId={workoutId}
             onDelete={onDeleteExercise}
-            onSetAdded={onSetAdded}
-            finished={finished}
-            onSetComplete={onSetComplete}
+            fetchWorkout={fetchWorkout}
+            workoutFinished={workoutFinished}
+            handleTimerSignal={handleTimerSignal}
           />
         ))}
       </ul>
     </section>
   );
 }
+
+export default React.memo(ExerciseList);

@@ -3,6 +3,7 @@
 import {useState, useCallback} from "react";
 import SetCard from "@/components/SetCard";
 import AddSetForm from "@/components/AddSetForm";
+import {Exercise} from "@/types/workout";
 
 interface Set {
   _id: string;
@@ -11,30 +12,22 @@ interface Set {
   completed: boolean;
 }
 
-interface Exercise {
-  _id: string;
-  name: string;
-  muscle: string;
-  equipment: string;
-  sets?: Set[];
-}
-
 interface ExerciseCardProps {
   exercise: Exercise;
   workoutId: string;
   onDelete: (exerciseId: string) => void;
-  onSetAdded?: () => void;
-  finished?: boolean;
-  onSetComplete?: () => void;
+  fetchWorkout?: () => void;
+  workoutFinished?: boolean;
+  handleTimerSignal?: () => void;
 }
 
 export default function ExerciseCard({
   exercise,
   workoutId,
   onDelete,
-  onSetAdded,
-  finished,
-  onSetComplete,
+  fetchWorkout,
+  workoutFinished,
+  handleTimerSignal,
 }: ExerciseCardProps) {
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
@@ -43,6 +36,8 @@ export default function ExerciseCard({
   const handleDelete = useCallback(() => {
     if (confirm(`Remove "${exercise.name}" from workout?`)) {
       onDelete(exercise._id);
+      console.log("_id", exercise._id, "deleted from workout");
+      console.log("exerciseId,", exercise.exerciseId, "deleted from workout");
     }
   }, [exercise.name, exercise._id, onDelete]);
 
@@ -68,13 +63,13 @@ export default function ExerciseCard({
 
       setReps("");
       setWeight("");
-      if (onSetAdded) onSetAdded();
+      if (fetchWorkout) fetchWorkout();
     } catch (err: any) {
       alert("Error adding set: " + err.message);
     } finally {
       setLoading(false);
     }
-  }, [reps, weight, workoutId, exercise._id, onSetAdded]);
+  }, [reps, weight, workoutId, exercise._id, fetchWorkout]);
 
   const handleDeleteSet = useCallback(
     async (setId: string) => {
@@ -89,13 +84,13 @@ export default function ExerciseCard({
           throw new Error(data.error || "Failed to delete set");
         }
 
-        if (onSetAdded) onSetAdded();
+        if (fetchWorkout) fetchWorkout();
       } catch (e: any) {
         alert("Error deleting set: " + e.message);
         console.error(e);
       }
     },
-    [workoutId, exercise._id, onSetAdded]
+    [workoutId, exercise._id, fetchWorkout]
   );
 
   const handleToggleSetComplete = useCallback(
@@ -113,14 +108,14 @@ export default function ExerciseCard({
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to update set");
 
-        if (onSetAdded) onSetAdded();
-        if (onSetComplete && completed === true) onSetComplete();
+        if (fetchWorkout) fetchWorkout();
+        if (handleTimerSignal && completed === true) handleTimerSignal();
       } catch (err: any) {
         alert("Failed to complete set: " + err.message);
         console.error(err);
       }
     },
-    [workoutId, exercise._id, onSetAdded, onSetComplete]
+    [workoutId, exercise._id, fetchWorkout, handleTimerSignal]
   );
 
   return (
@@ -138,8 +133,8 @@ export default function ExerciseCard({
                 <SetCard
                   key={s._id}
                   set={s}
-                  finished={finished}
-                  onToggleComplete={(completed) =>
+                  workoutFinished={workoutFinished}
+                  handleToggleSetComplete={(completed) =>
                     handleToggleSetComplete(s._id, completed)
                   }
                   onDelete={() => handleDeleteSet(s._id)}
@@ -149,7 +144,7 @@ export default function ExerciseCard({
           )}
         </div>
 
-        {!finished && (
+        {!workoutFinished && (
           <button
             onClick={handleDelete}
             className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition"
@@ -159,7 +154,7 @@ export default function ExerciseCard({
         )}
       </div>
 
-      {!finished && (
+      {!workoutFinished && (
         <AddSetForm
           reps={reps}
           weight={weight}

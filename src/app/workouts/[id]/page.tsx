@@ -1,9 +1,9 @@
 "use client";
-import {useState} from "react";
+import {useState, useMemo, useCallback, useRef} from "react";
 import {useParams} from "next/navigation";
 import {useAuth} from "@/hooks/useAuth";
 import {useWorkout} from "@/hooks/useWorkout";
-import {useExercises} from "@/hooks/useExercises";
+import {useDefaultExercises} from "@/hooks/useExercises";
 import {Exercise} from "@/types/workout";
 import Timer from "@/components/Timer";
 import ExerciseList from "@/components/ExerciseList";
@@ -17,46 +17,53 @@ export default function WorkoutPage() {
   const workoutId = params?.id as string;
 
   const [timerResetSignal, setTimerResetSignal] = useState(0);
-  const [elapsedDuration, setElapsedDuration] = useState(0);
+  const elapsedRef = useRef(0);
 
-  const {isLoading: authLoading, isAuthenticated} = useAuth();
-  const {workout, setWorkout, loading, error, refetch} = useWorkout(workoutId);
-  const defaultExercises = useExercises();
+  const {loading: authLoading, isAuthenticated} = useAuth();
+  const {workout, setWorkout, loading, error, fetchWorkout} =
+    useWorkout(workoutId);
+  const defaultExercises = useDefaultExercises();
 
-  const handleSetComplete = () => {
+  const handleTimerSignal = () => {
     setTimerResetSignal((prev) => prev + 1);
   };
 
-  const handleDeleteExercise = async (exerciseId: string) => {
-    try {
-      const res = await fetch(
-        `/api/workouts/${workoutId}/exercises/${exerciseId}`,
-        {method: "DELETE"}
-      );
+  const handleDeleteExercise = useCallback(
+    async (exerciseId: string) => {
+      try {
+        const res = await fetch(
+          `/api/workouts/${workoutId}/exercises/${exerciseId}`,
+          {method: "DELETE"}
+        );
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to delete exercise");
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to delete exercise");
+        }
+
+        setWorkout((prev: any) => ({
+          ...prev,
+          exercises: prev.exercises.filter(
+            (exercise: Exercise) => exercise._id !== exerciseId
+          ),
+        }));
+      } catch (error: any) {
+        alert("Error deleting exercise: " + error.message);
+        console.error(error);
       }
+    },
+    [workoutId, setWorkout]
+  );
 
-      setWorkout((prev: any) => ({
-        ...prev,
-        exercises: prev.exercises.filter(
-          (exercise: Exercise) => exercise._id !== exerciseId
-        ),
-      }));
-    } catch (error: any) {
-      alert("Error deleting exercise: " + error.message);
-      console.error(error);
-    }
-  };
+  console.log("Workout data:", workout);
+  const memoizedExercises = useMemo(() => workout?.exercises || [], [workout]);
 
   const handleFinishWorkout = async () => {
     try {
       const res = await fetch(`/api/workouts/${workoutId}/finish`, {
         method: "PATCH",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({duration: elapsedDuration}),
+        body: JSON.stringify({duration: elapsedRef.current}),
       });
 
       if (!res.ok) {
@@ -64,7 +71,7 @@ export default function WorkoutPage() {
         throw new Error(data.error || "Failed to finish workout");
       }
 
-      refetch();
+      fetchWorkout();
     } catch (e: any) {
       console.error(e);
       alert("Failed to finish workout");
@@ -76,7 +83,7 @@ export default function WorkoutPage() {
   );
 
   if (authLoading || loading) return <LoadingSpinner />;
-  if (!isAuthenticated) return null; // Already redirecting
+  if (!isAuthenticated) return null;
   if (error) return <ErrorMessage message={error} />;
 
   return (
@@ -85,18 +92,18 @@ export default function WorkoutPage() {
         <div className="mb-8">
           <Timer
             resetSignal={timerResetSignal}
-            onDurationUpdate={setElapsedDuration}
+            onDurationUpdate={(val) => (elapsedRef.current = val)}
           />
         </div>
       )}
 
       <ExerciseList
-        exercises={workout?.exercises || []}
+        exercises={memoizedExercises}
         workoutId={workoutId}
-        finished={workout?.finished || false}
+        workoutFinished={workout?.finished || false}
         onDeleteExercise={handleDeleteExercise}
-        onSetAdded={refetch}
-        onSetComplete={handleSetComplete}
+        fetchWorkout={fetchWorkout}
+        handleTimerSignal={handleTimerSignal}
       />
 
       {!workout?.finished && (
@@ -104,13 +111,12 @@ export default function WorkoutPage() {
           <AddExerciseSection
             workoutId={workoutId}
             defaultExercises={defaultExercises}
-            onWorkoutUpdate={setWorkout}
+            setWorkout={setWorkout}
           />
 
           <WorkoutActions
             workoutId={workoutId}
             hasIncompleteSets={!!hasIncompleteSets}
-            elapsedDuration={elapsedDuration}
             onFinish={handleFinishWorkout}
           />
         </>

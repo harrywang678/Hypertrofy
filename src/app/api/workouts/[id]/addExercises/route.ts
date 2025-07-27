@@ -45,7 +45,8 @@ export async function POST(
       const equipment = checkIsProperString(exercise.equipment, "Equipment");
 
       return {
-        _id: new ObjectId(exerciseId),
+        _id: new ObjectId(),
+        exerciseId: exerciseId,
         name,
         muscle,
         equipment,

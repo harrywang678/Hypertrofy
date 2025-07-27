@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import {Exercise} from "@/types/workout";
 
-export const useExercises = () => {
+export const useDefaultExercises = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {

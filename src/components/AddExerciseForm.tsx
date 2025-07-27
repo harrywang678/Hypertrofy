@@ -1,26 +1,14 @@
 "use client";
-
-import {useState, useCallback, memo} from "react";
-
-interface Exercise {
-  _id: string;
-  name: string;
-  muscle: string;
-  equipment: string;
-  sets?: Set[];
-  finished: boolean;
-}
-
-interface Set {
-  _id: string;
-  reps: number;
-  weight: number;
-  completed: boolean;
-}
+import {memo} from "react";
+import {Exercise} from "@/types/workout";
+import ExerciseItem from "@/components/exercises/ExerciseItem";
+import SelectedExercisesPreview from "@/components/exercises/SelectedExercisesPreview";
+import {useExerciseSelection} from "@/hooks/useExerciseSelection";
+import {useExerciseSubmission} from "@/hooks/useExerciseSubmission";
 
 interface AddExerciseFormProps {
   workoutId?: string;
-  onWorkoutUpdate?: (updatedWorkout: any) => void;
+  setWorkout?: (updatedWorkout: any) => void;
   setshowAddExerciseForm?: (show: boolean) => void;
   defaultExercises?: Exercise[];
   addFormRoutine?: boolean;
@@ -31,142 +19,53 @@ interface AddExerciseFormProps {
 
 const AddExerciseForm = memo(function AddExerciseForm({
   workoutId,
-  onWorkoutUpdate,
+  setWorkout,
   setshowAddExerciseForm,
-  defaultExercises,
-  addFormRoutine,
-  addFormWorkout,
+  defaultExercises = [],
+  addFormRoutine = false,
+  addFormWorkout = false,
   setSelectedExercises,
   onAddExercise,
 }: AddExerciseFormProps) {
-  console.log("rerendering this AddExerciseForm");
-  // Local state for temporarily selected exercises (doesn't trigger parent rerender)
-  const [localSelectedExercises, setLocalSelectedExercises] = useState<
-    Exercise[]
-  >([]);
+  const {
+    selectedExercises,
+    exerciseSets,
+    toggleExercise,
+    removeExercise,
+    updateSetCount,
+    reset,
+  } = useExerciseSelection();
 
-  // State to track number of sets for each exercise
-  const [exerciseSets, setExerciseSets] = useState<{[key: string]: number}>({});
+  const {submitToWorkout, submitToRoutine} = useExerciseSubmission(workoutId);
 
-  const handleSubmitExisting = async () => {
-    if (localSelectedExercises.length === 0) {
+  const handleSubmit = async () => {
+    if (selectedExercises.length === 0) {
       alert("Please select at least one exercise.");
       return;
     }
 
     try {
-      const res = await fetch(`/api/workouts/${workoutId}/addExercises`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          exercises: localSelectedExercises.map((ex) => ({
-            exerciseId: ex._id,
-            name: ex.name,
-            muscle: ex.muscle,
-            equipment: ex.equipment,
-          })),
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to add exercises.");
-
-      // Clear local selected exercises after successful addition
-      setLocalSelectedExercises([]);
-      setExerciseSets({});
-
-      // Refresh the workout data
-      const refreshedWorkoutRes = await fetch(`/api/workouts/${workoutId}`);
-      if (refreshedWorkoutRes.ok) {
-        const refreshedWorkout = await refreshedWorkoutRes.json();
-        if (onWorkoutUpdate) onWorkoutUpdate(refreshedWorkout);
-        if (setshowAddExerciseForm) setshowAddExerciseForm(false);
-      } else {
-        console.error("Failed to refresh workout after adding exercises");
+      if (addFormWorkout) {
+        const refreshedWorkout = await submitToWorkout(selectedExercises);
+        setWorkout?.(refreshedWorkout);
+        setshowAddExerciseForm?.(false);
+      } else if (addFormRoutine) {
+        const exercisesWithSets = submitToRoutine(
+          selectedExercises,
+          exerciseSets
+        );
+        setSelectedExercises?.((prev) => [
+          ...(prev || []),
+          ...exercisesWithSets,
+        ]);
+        onAddExercise?.(exercisesWithSets);
+        alert("Exercises added to routine!");
       }
+      reset();
     } catch (err: any) {
       console.error(err);
       alert("Error: " + err.message);
     }
-  };
-
-  const toggleExerciseSelection = useCallback(
-    (exercise: Exercise, checked: boolean) => {
-      if (checked) {
-        setLocalSelectedExercises((prev) => [...prev, exercise]);
-        setExerciseSets((prev) => ({...prev, [exercise._id]: 3}));
-      } else {
-        setLocalSelectedExercises((prev) =>
-          prev.filter((ex) => ex._id !== exercise._id)
-        );
-        setExerciseSets((prev) => {
-          const newSets = {...prev};
-          delete newSets[exercise._id];
-          return newSets;
-        });
-      }
-    },
-    []
-  );
-
-  const handleSubmitCreateRoutine = async () => {
-    if (localSelectedExercises.length === 0) {
-      alert("Please select at least one exercise.");
-      return;
-    }
-
-    try {
-      console.log("Adding exercises to routine:", localSelectedExercises);
-
-      // Create exercises with sets information
-      const exercisesWithSets = localSelectedExercises.map((exercise) => ({
-        ...exercise,
-        sets: Array(exerciseSets[exercise._id] || 3)
-          .fill(null)
-          .map(() => ({
-            _id: "", // This will be generated by the backend
-            reps: 0,
-            weight: 0,
-            completed: false,
-          })),
-      }));
-
-      // NOW update the parent state - this will trigger the rerender
-      if (setSelectedExercises) {
-        setSelectedExercises((prev) => [...prev, ...exercisesWithSets]);
-      }
-
-      console.log("Exercises added to routine:", exercisesWithSets);
-
-      if (onAddExercise) {
-        onAddExercise(exercisesWithSets);
-      }
-
-      setLocalSelectedExercises([]);
-      setExerciseSets({});
-
-      alert("Exercises added to routine!");
-    } catch (error) {
-      console.error("Error adding exercises to routine:", error);
-      alert("Failed to add exercises to routine");
-    }
-  };
-
-  const handleSubmit = () => {
-    if (addFormWorkout) {
-      handleSubmitExisting();
-    } else if (addFormRoutine) {
-      handleSubmitCreateRoutine();
-    }
-  };
-
-  const handleSetCountChange = (exerciseId: string, setCount: number) => {
-    setExerciseSets((prev) => ({
-      ...prev,
-      [exerciseId]: Math.max(1, setCount), // Minimum 1 set
-    }));
   };
 
   return (
@@ -177,106 +76,35 @@ const AddExerciseForm = memo(function AddExerciseForm({
             Select Exercises
           </label>
           <div className="max-h-64 overflow-y-auto bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 space-y-2">
-            {defaultExercises?.map((exercise) => (
-              <div key={exercise._id}>
-                <label className="flex items-center gap-3 text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="accent-blue-600"
-                    checked={localSelectedExercises.some(
-                      (e) => e._id === exercise._id
-                    )}
-                    onChange={(e) =>
-                      toggleExerciseSelection(exercise, e.target.checked)
-                    }
-                  />
-                  <div className="flex-1">
-                    <span className="font-medium">{exercise.name}</span>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {exercise.muscle} • {exercise.equipment}
-                    </p>
-                  </div>
-                </label>
-
-                {/* Sets input - only show if exercise is selected and we're creating a routine */}
-                {localSelectedExercises.some((e) => e._id === exercise._id) &&
-                  addFormRoutine && (
-                    <div className="ml-8 mt-2 flex items-center gap-2">
-                      <label className="text-sm text-gray-600 dark:text-gray-300">
-                        Sets:
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={exerciseSets[exercise._id] || 3}
-                        onChange={(e) =>
-                          handleSetCountChange(
-                            exercise._id,
-                            parseInt(e.target.value) || 1
-                          )
-                        }
-                        className="w-16 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      />
-                    </div>
-                  )}
-              </div>
+            {defaultExercises.map((exercise) => (
+              <ExerciseItem
+                key={exercise._id}
+                exercise={exercise}
+                isSelected={selectedExercises.some(
+                  (e) => e._id === exercise._id
+                )}
+                onToggle={toggleExercise}
+                setCount={exerciseSets[exercise._id]}
+                onSetCountChange={updateSetCount}
+                showSetInput={addFormRoutine}
+              />
             ))}
           </div>
         </div>
 
-        {localSelectedExercises.length > 0 && (
-          <div className="text-sm text-gray-700 dark:text-gray-200">
-            <p className="font-medium mb-2">
-              Selected Exercises ({localSelectedExercises.length}):
-            </p>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
-              <ul className="space-y-2">
-                {localSelectedExercises.map((ex) => (
-                  <li
-                    key={ex._id}
-                    className="flex justify-between items-center"
-                  >
-                    <div>
-                      <span className="font-medium">{ex.name}</span>
-                      {addFormRoutine && (
-                        <span className="text-xs text-gray-500 ml-2">
-                          ({exerciseSets[ex._id] || 3} sets)
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => {
-                        setLocalSelectedExercises(
-                          localSelectedExercises.filter(
-                            (exercise) => exercise._id !== ex._id
-                          )
-                        );
-                        // Remove sets count
-                        setExerciseSets((prev) => {
-                          const newSets = {...prev};
-                          delete newSets[ex._id];
-                          return newSets;
-                        });
-                      }}
-                      className="text-red-500 hover:text-red-700 text-xs ml-2"
-                    >
-                      ✕
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
+        <SelectedExercisesPreview
+          exercises={selectedExercises}
+          exerciseSets={exerciseSets}
+          showSets={addFormRoutine}
+          onRemove={removeExercise}
+        />
 
-        {/* Show submit button for both workout and routine forms */}
         {(addFormWorkout || addFormRoutine) && (
           <div className="pt-2">
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={localSelectedExercises.length === 0}
+              disabled={selectedExercises.length === 0}
               className="w-full bg-gray-800 hover:bg-gray-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-md transition"
             >
               {addFormWorkout

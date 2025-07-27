@@ -5,9 +5,7 @@ import {workouts} from "@/config/mongoCollections";
 
 export async function POST(req: NextRequest) {
   try {
-    const {userId, name, notes} = await req.json();
-
-    console.log(userId, name, notes);
+    const {userId, name, notes, routineId} = await req.json(); // add routineId
 
     if (!userId || !name) {
       return NextResponse.json(
@@ -16,7 +14,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newWorkout = await createWorkout(userId, name, notes);
+    const newWorkout = await createWorkout(userId, name, notes, routineId); // pass routineId
 
     return NextResponse.json(
       {success: true, workout: newWorkout},

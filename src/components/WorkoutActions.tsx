@@ -4,14 +4,12 @@ import {useRouter} from "next/navigation";
 interface WorkoutActionsProps {
   workoutId: string;
   hasIncompleteSets: boolean;
-  elapsedDuration: number;
   onFinish: () => void;
 }
 
 export default function WorkoutActions({
   workoutId,
   hasIncompleteSets,
-  elapsedDuration,
   onFinish,
 }: WorkoutActionsProps) {
   const router = useRouter();

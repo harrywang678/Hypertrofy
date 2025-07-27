@@ -1,60 +1,23 @@
 "use client";
 
 import {useEffect, useState, memo, useMemo, useCallback} from "react";
-import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import AddExerciseForm from "@/components/AddExerciseForm";
-
-interface Exercise {
-  _id: string;
-  name: string;
-  muscle: string;
-  equipment: string;
-  sets?: Set[];
-  finished: boolean;
-}
-
-interface Set {
-  _id: string;
-  reps: number;
-  weight: number;
-  completed: boolean;
-}
+import {useAuth} from "@/hooks/useAuth";
+import {useDefaultExercises} from "@/hooks/useExercises";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorMessage from "@/components/ErrorMessage";
+import {Exercise} from "@/types/workout";
 
 export default function CreateNewRoutinePage() {
-  const {data: session, status} = useSession();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const {loading: authLoading, isAuthenticated, user} = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [routineName, setRoutineName] = useState("");
-  const [defaultExercises, setDefaultExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+  const defaultExercises = useDefaultExercises();
 
-  console.log("rerendering this CreateNewRoutinePage");
-
-  useEffect(() => {
-    if (!session && status !== "loading") {
-      router.replace("/api/auth/signin");
-    }
-  }, [session, status]);
-
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        console.log("Fetching default exercises...");
-        const res = await fetch("/api/exercises?default=true");
-
-        if (!res.ok) throw new Error("Failed to fetch exercises.");
-        const data = await res.json();
-
-        setDefaultExercises(data);
-      } catch (error) {
-        console.error("Error fetching exercises:", error);
-      }
-    };
-
-    fetchExercises();
-  }, []);
+  console.log("selectedExercises", selectedExercises);
 
   const handleSubmitCreateRoutine = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -70,8 +33,16 @@ export default function CreateNewRoutinePage() {
     }
 
     const exercisesPayload = selectedExercises.map((exercise) => ({
+      muscle: exercise.muscle,
+      equipment: exercise.equipment,
       exerciseId: exercise._id,
-      sets: exercise.sets?.length || 3,
+      name: exercise.name,
+      sets:
+        exercise.sets?.map((set) => ({
+          reps: set.reps,
+          weight: set.weight,
+          completed: set.completed,
+        })) || [],
     }));
 
     try {
@@ -80,7 +51,7 @@ export default function CreateNewRoutinePage() {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           name: routineName,
-          userId: session?.user.id,
+          userId: user?.id,
           exercises: exercisesPayload,
         }),
       });
@@ -126,23 +97,16 @@ export default function CreateNewRoutinePage() {
     []
   );
 
-  // Memoized callback to add exercises to the parent state
   const addExercisesToRoutine = useCallback((newExercises: Exercise[]) => {
     setSelectedExercises((prev) => [...prev, ...newExercises]);
   }, []);
 
-  // Memoize only the props that AddExerciseForm actually needs
-  const addExerciseFormProps = useMemo(
-    () => ({
-      defaultExercises,
-      addFormRoutine: true as const,
-      onAddExercise: addExercisesToRoutine, // Pass a callback instead of state setters
-    }),
-    [defaultExercises, addExercisesToRoutine]
-  );
+  if (authLoading || !isAuthenticated) {
+    return <LoadingSpinner />;
+  }
 
   if (error) {
-    return <div className="text-red-600 p-4">Error: {error}</div>;
+    return <ErrorMessage message={error} />;
   }
 
   return (
@@ -225,7 +189,11 @@ export default function CreateNewRoutinePage() {
           </div>
         )}
 
-        <AddExerciseForm {...addExerciseFormProps} />
+        <AddExerciseForm
+          defaultExercises={defaultExercises}
+          addFormRoutine={true}
+          onAddExercise={addExercisesToRoutine}
+        />
 
         <div className="pt-4">
           <button

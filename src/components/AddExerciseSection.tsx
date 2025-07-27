@@ -6,13 +6,13 @@ import AddExerciseForm from "@/components/AddExerciseForm";
 interface AddExerciseSectionProps {
   workoutId: string;
   defaultExercises: Exercise[];
-  onWorkoutUpdate: (workout: any) => void;
+  setWorkout: (workout: any) => void;
 }
 
 export default function AddExerciseSection({
   workoutId,
   defaultExercises,
-  onWorkoutUpdate,
+  setWorkout,
 }: AddExerciseSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
@@ -29,7 +29,7 @@ export default function AddExerciseSection({
       {showForm && (
         <AddExerciseForm
           workoutId={workoutId}
-          onWorkoutUpdate={onWorkoutUpdate}
+          setWorkout={setWorkout}
           setshowAddExerciseForm={setShowForm}
           defaultExercises={defaultExercises}
           addFormWorkout={true}

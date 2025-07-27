@@ -1,11 +1,12 @@
 import {ObjectId} from "mongodb";
-import {workouts, users} from "@/config/mongoCollections";
+import {workouts, users, routines} from "@/config/mongoCollections";
 import * as validation from "@/validation";
 
 export const createWorkout = async (
   userId: string,
   name: string,
-  notes?: string
+  notes?: string,
+  routineId?: string
 ) => {
   try {
     userId = validation.checkIsProperID(userId, "userId");
@@ -23,12 +24,16 @@ export const createWorkout = async (
     if (!userFound)
       throw new Error("User Not Found, can not make new workout.");
 
+    const workoutExercises = routineId
+      ? await getExercisesFromRoutine(routineId)
+      : [];
+
     let newWorkout = {
       userId: new ObjectId(userId),
       date: new Date(),
       name,
       notes,
-      exercises: [],
+      exercises: workoutExercises,
       finished: false,
       startTime: new Date(), // needed for duration calculation
       duration: null,
@@ -51,6 +56,30 @@ export const createWorkout = async (
     throw new Error(e);
   }
 };
+
+async function getExercisesFromRoutine(routineId: string) {
+  routineId = validation.checkIsProperID(routineId, "routineId");
+  const routineCollection = await routines();
+  const routine = await routineCollection.findOne({
+    _id: new ObjectId(routineId),
+  });
+  if (!routine) throw new Error("Routine not found.");
+
+  return (routine.exercises || []).map((ex: any) => ({
+    _id: new ObjectId(),
+    exerciseId: new ObjectId(ex.exerciseId ?? ex._id),
+    name: ex.name,
+    muscle: ex.muscle || "Unknown",
+    equipment: ex.equipment || "Unknown",
+    sets: Array.from({length: ex.sets?.length || 3}, (_, i) => ({
+      _id: new ObjectId(),
+      reps: 0,
+      weight: 0,
+      completed: false,
+    })),
+    notes: "",
+  }));
+}
 
 export const getWorkoutById = async (id: string) => {
   try {

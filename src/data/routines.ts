@@ -1,44 +1,52 @@
 import {routines} from "../config/mongoCollections";
 import {ObjectId, ReturnDocument} from "mongodb";
 import * as validation from "../validation";
-
-interface Routine {
-  _id: ObjectId;
-  name: string;
-  userId: ObjectId;
-  exercises: {
-    exerciseId: ObjectId;
-    sets: number;
-  }[];
-}
+import {Exercise, Routine} from "@/types/workout";
 
 export async function createRoutine(
   name: string,
   userId: string,
-  exercises: {
-    exerciseId: string;
-    sets: number;
-  }[]
+  exercises: Exercise[]
 ) {
   try {
     name = validation.checkIsProperString(name, "name");
     userId = validation.checkIsProperID(userId, "userId");
+
     if (!Array.isArray(exercises) || exercises.length === 0) {
       throw new Error("exercises must be a non-empty array");
     }
+
     exercises.forEach((exercise) => {
       if (
         !exercise ||
+        typeof exercise.muscle !== "string" ||
+        typeof exercise.equipment !== "string" ||
         typeof exercise.exerciseId !== "string" ||
-        typeof exercise.sets !== "number" ||
-        exercise.sets <= 0
+        typeof exercise.name !== "string" ||
+        !Array.isArray(exercise.sets) ||
+        exercise.sets.length === 0
       ) {
-        throw new Error("Each exercise must have a valid exerciseId and sets");
+        throw new Error(
+          "Each exercise must have a valid exerciseId, exercise name, and sets array"
+        );
       }
+
       exercise.exerciseId = validation.checkIsProperID(
         exercise.exerciseId,
         "exerciseId"
       );
+
+      exercise.sets.forEach((set, index) => {
+        if (
+          typeof set.reps !== "number" ||
+          typeof set.weight !== "number" ||
+          typeof set.completed !== "boolean"
+        ) {
+          throw new Error(
+            `Invalid set at index ${index} for exercise ${exercise.name}`
+          );
+        }
+      });
     });
 
     const routineCollection = await routines();
@@ -47,8 +55,15 @@ export async function createRoutine(
       name,
       userId: new ObjectId(userId),
       exercises: exercises.map((exercise) => ({
+        muscle: exercise.muscle,
+        equipment: exercise.equipment,
+        name: exercise.name,
         exerciseId: new ObjectId(exercise.exerciseId),
-        sets: exercise.sets,
+        sets: exercise?.sets?.map((set) => ({
+          reps: set.reps,
+          weight: set.weight,
+          completed: set.completed,
+        })),
       })),
       createdAt: new Date(),
     };
@@ -68,7 +83,6 @@ export async function createRoutine(
     throw new Error(`Error creating routine: ${err.message}`);
   }
 }
-
 export const getRoutineById = async (id: string): Promise<Routine> => {
   try {
     id = validation.checkIsProperID(id, "routineId");
