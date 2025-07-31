@@ -3,7 +3,9 @@ import {Exercise} from "@/types/workout";
 
 export const useExerciseSelection = () => {
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
-  const [exerciseSets, setExerciseSets] = useState<{[key: string]: number}>({});
+  const [exerciseDictionaryWithSets, setExerciseSets] = useState<{
+    [key: string]: number;
+  }>({});
 
   const toggleExercise = useCallback((exercise: Exercise, checked: boolean) => {
     if (checked) {
@@ -44,7 +46,7 @@ export const useExerciseSelection = () => {
 
   return {
     selectedExercises,
-    exerciseSets,
+    exerciseDictionaryWithSets,
     toggleExercise,
     removeExercise,
     updateSetCount,

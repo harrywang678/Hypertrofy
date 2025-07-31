@@ -38,7 +38,11 @@ export default function UserRoutines() {
   return (
     <main>
       <h1> Your Routines </h1>
-      <RoutinesCard routines={routines} userId={user?.id ?? ""} />
+      <RoutinesCard
+        setRoutines={setRoutines}
+        routines={routines}
+        userId={user?.id ?? ""}
+      />
     </main>
   );
 }

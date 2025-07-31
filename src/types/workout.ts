@@ -36,3 +36,14 @@ export interface Routine {
   exercises: Exercise[];
   createdAt: Date;
 }
+
+export interface User {
+  _id: string | ObjectId;
+  email: string;
+  name: string;
+  image: string;
+  createdAt: Date;
+  updatedAt: Date;
+  friends: string[] | ObjectId[];
+  workouts: string[] | ObjectId[];
+}

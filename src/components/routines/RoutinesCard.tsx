@@ -1,15 +1,19 @@
 "use client";
 import {Routine} from "@/types/workout";
-import {useRouter} from "next/navigation"; 
+import {useRouter} from "next/navigation";
 
 interface RoutineCardProps {
   routines: Routine[];
-  userId: string; 
+  userId: string;
+  setRoutines: (routine: any) => void;
 }
 
-export default function RoutinesCard({routines, userId}: RoutineCardProps) {
+export default function RoutinesCard({
+  routines,
+  userId,
+  setRoutines,
+}: RoutineCardProps) {
   const router = useRouter();
-
   const handleStartWorkout = async (routine: Routine) => {
     try {
       const res = await fetch("/api/workouts", {
@@ -39,6 +43,24 @@ export default function RoutinesCard({routines, userId}: RoutineCardProps) {
     }
   };
 
+  const handleDeleteRoutine = async (routine: Routine) => {
+    try {
+      const res = await fetch(`/api/routines/${routine._id}`, {
+        method: "DELETE",
+        headers: {"Content-Type": "application/json"},
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Workout creation failed");
+
+      setRoutines((prev: any) =>
+        prev.filter((currRoutine: any) => currRoutine._id !== routine._id)
+      );
+    } catch (e) {
+      alert(`${e}`);
+    }
+  };
+
   return (
     <div>
       {routines.map((routine) => (
@@ -60,6 +82,9 @@ export default function RoutinesCard({routines, userId}: RoutineCardProps) {
               onClick={() => handleStartWorkout(routine)}
             >
               Start Workout
+            </button>
+            <button onClick={() => handleDeleteRoutine(routine)}>
+              Delete Routine
             </button>
           </span>
         </span>

@@ -29,7 +29,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
 }: AddExerciseFormProps) {
   const {
     selectedExercises,
-    exerciseSets,
+    exerciseDictionaryWithSets,
     toggleExercise,
     removeExercise,
     updateSetCount,
@@ -52,7 +52,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
       } else if (addFormRoutine) {
         const exercisesWithSets = submitToRoutine(
           selectedExercises,
-          exerciseSets
+          exerciseDictionaryWithSets
         );
         setSelectedExercises?.((prev) => [
           ...(prev || []),
@@ -84,7 +84,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
                   (e) => e._id === exercise._id
                 )}
                 onToggle={toggleExercise}
-                setCount={exerciseSets[exercise._id]}
+                setCount={exerciseDictionaryWithSets[exercise._id]}
                 onSetCountChange={updateSetCount}
                 showSetInput={addFormRoutine}
               />
@@ -94,7 +94,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
 
         <SelectedExercisesPreview
           exercises={selectedExercises}
-          exerciseSets={exerciseSets}
+          exerciseDictionaryWithSets={exerciseDictionaryWithSets}
           showSets={addFormRoutine}
           onRemove={removeExercise}
         />

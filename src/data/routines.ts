@@ -1,7 +1,7 @@
 import {routines} from "../config/mongoCollections";
 import {ObjectId, ReturnDocument} from "mongodb";
 import * as validation from "../validation";
-import {Exercise, Routine} from "@/types/workout";
+import {Exercise, Routine, WorkoutSet} from "@/types/workout";
 
 export async function createRoutine(
   name: string,
@@ -148,26 +148,37 @@ export const updateRoutine = async (
     userId?: string;
     exercises?: {
       exerciseId: string;
-      sets: number;
+      name: string;
+      muscle: string;
+      equipment: string;
+      sets?: number | WorkoutSet[];
     }[];
   }
 ): Promise<Routine> => {
   try {
+    // Validate routineId
     routineId = validation.checkIsProperID(routineId, "routineId");
+
+    // Build the update object
+    const updateDoc: Partial<Routine> = {};
+
+    // Validate and assign name
     if (updatedFields.name) {
-      updatedFields.name = validation.checkIsProperString(
+      updateDoc.name = validation.checkIsProperString(
         updatedFields.name,
         "name"
       );
     }
 
+    // Validate and assign userId
     if (updatedFields.userId) {
-      updatedFields.userId = validation.checkIsProperID(
+      updateDoc.userId = validation.checkIsProperID(
         updatedFields.userId,
         "userId"
       );
     }
 
+    // Validate and map exercises
     if (updatedFields.exercises) {
       if (
         !Array.isArray(updatedFields.exercises) ||
@@ -175,47 +186,100 @@ export const updateRoutine = async (
       ) {
         throw new Error("exercises must be a non-empty array");
       }
-      updatedFields.exercises.forEach((exercise) => {
+
+      updateDoc.exercises = updatedFields?.exercises.map((exercise, index) => {
         if (
-          !exercise ||
-          typeof exercise.exerciseId !== "string" ||
-          typeof exercise.sets !== "number" ||
-          exercise.sets <= 0
+          !exercise.exerciseId ||
+          !exercise.name ||
+          !exercise.muscle ||
+          !exercise.equipment
         ) {
+          console.log(updateDoc);
           throw new Error(
-            "Each exercise must have a valid exerciseId and sets"
+            `Exercise at index ${index} is missing required fields`
           );
         }
-        exercise.exerciseId = validation.checkIsProperID(
+
+        const validExerciseId = validation.checkIsProperID(
           exercise.exerciseId,
           "exerciseId"
         );
+
+        let processedSets: WorkoutSet[] | undefined;
+
+        if (typeof exercise.sets === "number") {
+          if (exercise.sets <= 0) {
+            throw new Error(
+              `Exercise at index ${index} has invalid sets number`
+            );
+          }
+
+          processedSets = Array(exercise.sets)
+            .fill(0)
+            .map(() => ({
+              _id: new ObjectId().toString(),
+              reps: 0,
+              weight: 0,
+              completed: false,
+            }));
+        } else if (Array.isArray(exercise.sets)) {
+          processedSets = exercise.sets.map((set, setIdx) => {
+            if (
+              typeof set.reps !== "number" ||
+              typeof set.weight !== "number" ||
+              typeof set.completed !== "boolean"
+            ) {
+              throw new Error(
+                `Invalid set at index ${setIdx} in exercise ${index}`
+              );
+            }
+
+            return {
+              _id: set._id || new ObjectId().toString(),
+              reps: set.reps,
+              weight: set.weight,
+              completed: set.completed,
+            };
+          });
+        }
+
+        return {
+          _id: new ObjectId().toString(), // optional, depends on your schema
+          exerciseId: validExerciseId,
+          name: exercise.name,
+          muscle: exercise.muscle,
+          equipment: exercise.equipment,
+          sets: processedSets,
+          finished: false,
+        };
       });
     }
 
     const routineCollection = await routines();
 
-    const updateInfo = await routineCollection.findOneAndUpdate(
+    const result = await routineCollection.findOneAndUpdate(
       {_id: new ObjectId(routineId)},
-      {$set: updatedFields},
+      {$set: updateDoc},
       {returnDocument: "after"}
     );
 
-    if (!updateInfo) {
-      throw new Error("Could not update routine");
+    if (!result) {
+      throw new Error("Could not find or update routine");
     }
 
-    return updateInfo as Routine;
+    return result as Routine;
   } catch (err: any) {
     throw new Error(`Error updating routine: ${err.message}`);
   }
 };
 
-export const deleteRoutine = async (id: string): Promise<Routine> => {
+export const deleteRoutineById = async (id: string): Promise<Routine> => {
   try {
     id = validation.checkIsProperID(id, "routineId");
 
     const routineCollection = await routines();
+
+    console.log("RoutineId:", id);
 
     const deleteInfo = await routineCollection.findOneAndDelete({
       _id: new ObjectId(id),

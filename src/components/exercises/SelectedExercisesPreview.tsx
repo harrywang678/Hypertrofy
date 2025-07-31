@@ -4,7 +4,7 @@ import {Exercise} from "@/types/workout";
 
 interface SelectedExercisesPreviewProps {
   exercises: Exercise[];
-  exerciseSets: {[key: string]: number};
+  exerciseDictionaryWithSets: {[key: string]: number};
   showSets: boolean;
   onRemove: (exerciseId: string) => void;
 }
@@ -12,7 +12,7 @@ interface SelectedExercisesPreviewProps {
 const SelectedExercisesPreview = memo(
   ({
     exercises,
-    exerciseSets,
+    exerciseDictionaryWithSets,
     showSets,
     onRemove,
   }: SelectedExercisesPreviewProps) => {
@@ -31,7 +31,7 @@ const SelectedExercisesPreview = memo(
                   <span className="font-medium">{ex.name}</span>
                   {showSets && (
                     <span className="text-xs text-gray-500 ml-2">
-                      ({exerciseSets[ex._id] || 3} sets)
+                      ({exerciseDictionaryWithSets[ex._id] || 3} sets)
                     </span>
                   )}
                 </div>
