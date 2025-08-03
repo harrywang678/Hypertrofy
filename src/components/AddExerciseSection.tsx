@@ -4,14 +4,14 @@ import {Exercise} from "@/types/workout";
 import AddExerciseForm from "@/components/AddExerciseForm";
 
 interface AddExerciseSectionProps {
-  workoutId: string;
-  defaultExercises: Exercise[];
-  setWorkout: (workout: any) => void;
+  workoutId?: string;
+  exercises: Exercise[];
+  setWorkout?: (workout: any) => void;
 }
 
 export default function AddExerciseSection({
   workoutId,
-  defaultExercises,
+  exercises,
   setWorkout,
 }: AddExerciseSectionProps) {
   const [showForm, setShowForm] = useState(false);
@@ -31,7 +31,7 @@ export default function AddExerciseSection({
           workoutId={workoutId}
           setWorkout={setWorkout}
           setshowAddExerciseForm={setShowForm}
-          defaultExercises={defaultExercises}
+          exercises={exercises}
           addFormWorkout={true}
           setSelectedExercises={setSelectedExercises}
         />

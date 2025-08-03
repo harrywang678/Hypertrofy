@@ -3,7 +3,7 @@ import {useState, useMemo, useCallback, useRef} from "react";
 import {useParams} from "next/navigation";
 import {useAuth} from "@/hooks/useAuth";
 import {useWorkout} from "@/hooks/useWorkout";
-import {useDefaultExercises} from "@/hooks/useExercises";
+import {useDefaultExercises} from "@/hooks/useDefaultExercises";
 import {Exercise} from "@/types/workout";
 import Timer from "@/components/Timer";
 import ExerciseList from "@/components/ExerciseList";

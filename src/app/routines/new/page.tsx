@@ -4,7 +4,7 @@ import {useEffect, useState, memo, useMemo, useCallback} from "react";
 import {useRouter} from "next/navigation";
 import AddExerciseForm from "@/components/AddExerciseForm";
 import {useAuth} from "@/hooks/useAuth";
-import {useDefaultExercises} from "@/hooks/useExercises";
+import {useDefaultExercises} from "@/hooks/useDefaultExercises";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ErrorMessage from "@/components/ErrorMessage";
 import {Exercise} from "@/types/workout";
@@ -16,8 +16,6 @@ export default function CreateNewRoutinePage() {
   const [routineName, setRoutineName] = useState("");
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const defaultExercises = useDefaultExercises();
-
-  console.log("selectedExercises", selectedExercises);
 
   const handleSubmitCreateRoutine = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -190,7 +188,7 @@ export default function CreateNewRoutinePage() {
         )}
 
         <AddExerciseForm
-          defaultExercises={defaultExercises}
+          exercises={defaultExercises}
           addFormRoutine={true}
           onAddExercise={addExercisesToRoutine}
         />
