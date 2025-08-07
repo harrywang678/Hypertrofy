@@ -8,6 +8,7 @@ import ErrorMessage from "@/components/ErrorMessage";
 import AddExerciseForm from "@/components/AddExerciseForm";
 import {useDefaultExercises} from "@/hooks/useDefaultExercises";
 import {Exercise} from "@/types/workout";
+import {ObjectId} from "bson";
 
 function UpdateRoutine() {
   const {id} = useParams();
@@ -69,8 +70,19 @@ function UpdateRoutine() {
     []
   );
 
-  const addExercisesToRoutine = useCallback((newExercises: Exercise[]) => {
-    setSelectedExercises((prev) => [...prev, ...newExercises]);
+  const addExercisesToRoutine = useCallback((newExercises: any) => {
+    const transformed = newExercises.map((exercise: any) => ({
+      ...exercise,
+      exerciseId: exercise._id,
+      _id: new ObjectId().toString(), // unique per instance
+      sets: exercise.sets || [
+        {reps: 0, weight: 0, completed: false},
+        {reps: 0, weight: 0, completed: false},
+        {reps: 0, weight: 0, completed: false},
+      ],
+    }));
+
+    setSelectedExercises((prev) => [...prev, ...transformed]);
   }, []);
 
   const handleUpdateRoutine = async (event: React.FormEvent) => {
