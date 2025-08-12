@@ -3,7 +3,6 @@ import {getServerSession} from "next-auth";
 import {authOptions} from "@/lib/auth"; // path to your NextAuth config
 import {workouts} from "@/config/mongoCollections"; // adjust to your DB utility
 import {ObjectId} from "mongodb";
-import {finished} from "stream";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
