@@ -1,6 +1,7 @@
 "use client";
 import {Routine} from "@/types/workout";
 import {useRouter} from "next/navigation";
+import Link from "next/link";
 
 interface RoutineCardProps {
   routines: Routine[];
@@ -86,6 +87,10 @@ export default function RoutinesCard({
             <button onClick={() => handleDeleteRoutine(routine)}>
               Delete Routine
             </button>
+
+            <Link href={`/routines/${routine._id}`}>
+              <button> Edit Routine </button>
+            </Link>
           </span>
         </span>
       ))}

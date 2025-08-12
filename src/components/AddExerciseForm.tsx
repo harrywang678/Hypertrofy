@@ -10,7 +10,7 @@ interface AddExerciseFormProps {
   workoutId?: string;
   setWorkout?: (updatedWorkout: any) => void;
   setshowAddExerciseForm?: (show: boolean) => void;
-  defaultExercises?: Exercise[];
+  exercises?: Exercise[];
   addFormRoutine?: boolean;
   addFormWorkout?: boolean;
   setSelectedExercises?: React.Dispatch<React.SetStateAction<Exercise[]>>;
@@ -21,7 +21,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
   workoutId,
   setWorkout,
   setshowAddExerciseForm,
-  defaultExercises = [],
+  exercises = [],
   addFormRoutine = false,
   addFormWorkout = false,
   setSelectedExercises,
@@ -76,7 +76,7 @@ const AddExerciseForm = memo(function AddExerciseForm({
             Select Exercises
           </label>
           <div className="max-h-64 overflow-y-auto bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md p-3 space-y-2">
-            {defaultExercises.map((exercise) => (
+            {exercises.map((exercise) => (
               <ExerciseItem
                 key={exercise._id}
                 exercise={exercise}

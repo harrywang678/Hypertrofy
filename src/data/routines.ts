@@ -187,6 +187,7 @@ export const updateRoutine = async (
         throw new Error("exercises must be a non-empty array");
       }
 
+      console.log("UpdatedFields", updatedFields);
       updateDoc.exercises = updatedFields?.exercises.map((exercise, index) => {
         if (
           !exercise.exerciseId ||
@@ -194,7 +195,6 @@ export const updateRoutine = async (
           !exercise.muscle ||
           !exercise.equipment
         ) {
-          console.log(updateDoc);
           throw new Error(
             `Exercise at index ${index} is missing required fields`
           );

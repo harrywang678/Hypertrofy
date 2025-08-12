@@ -2,7 +2,7 @@ import {useState, useEffect} from "react";
 import {Exercise} from "@/types/workout";
 
 export const useDefaultExercises = () => {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [defaultExercises, setDefaultExercises] = useState<Exercise[]>([]);
 
   useEffect(() => {
     const fetchExercises = async () => {
@@ -10,7 +10,7 @@ export const useDefaultExercises = () => {
         const res = await fetch("/api/exercises?default=true");
         if (!res.ok) throw new Error("Failed to fetch exercises.");
         const data = await res.json();
-        setExercises(data);
+        setDefaultExercises(data);
       } catch (error) {
         console.error("Error fetching exercises:", error);
       }
@@ -19,5 +19,5 @@ export const useDefaultExercises = () => {
     fetchExercises();
   }, []);
 
-  return exercises;
+  return defaultExercises;
 };
