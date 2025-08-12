@@ -1,7 +1,9 @@
-"use client";
+'use client';
 
-import {useEffect, useState} from "react";
-import {useParams, useRouter} from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorMessage from '@/components/ErrorMessage';
 
 interface ExerciseInput {
   exerciseId: string;
@@ -10,20 +12,20 @@ interface ExerciseInput {
 }
 
 function UpdateRoutine() {
-  const {id} = useParams();
+  const { id } = useParams();
   const router = useRouter();
 
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [exercises, setExercises] = useState<ExerciseInput[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   // Fetch routine by ID
   useEffect(() => {
     const fetchRoutine = async () => {
       try {
         const res = await fetch(`/api/routines/${id}`);
-        if (!res.ok) throw new Error("Failed to load routine.");
+        if (!res.ok) throw new Error('Failed to load routine.');
         const data = await res.json();
         setName(data.name);
         setExercises(
@@ -47,21 +49,21 @@ function UpdateRoutine() {
   const handleUpdate = async () => {
     try {
       const res = await fetch(`/api/routines/${id}`, {
-        method: "PATCH",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({name, exercises}),
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, exercises }),
       });
 
-      if (!res.ok) throw new Error("Failed to update routine");
+      if (!res.ok) throw new Error('Failed to update routine');
 
-      router.push("/routines");
+      router.push('/routines');
     } catch (e: any) {
       alert(e.message);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage message={error} />;
 
   return <div></div>;
 }
