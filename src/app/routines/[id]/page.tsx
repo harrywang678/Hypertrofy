@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {useEffect, useState, useCallback} from "react";
 import {useParams, useRouter} from "next/navigation";
@@ -11,7 +11,7 @@ import {Exercise} from "@/types/workout";
 import {ObjectId} from "bson";
 
 function UpdateRoutine() {
-  const {id} = useParams();
+  const { id } = useParams();
   const router = useRouter();
   const {loading: authLoading, isAuthenticated, user} = useAuth();
   const [routineName, setRoutineName] = useState("");
