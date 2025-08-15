@@ -1,11 +1,12 @@
 "use client";
 
-import {useSession, signIn, signOut} from "next-auth/react";
+import {signIn, signOut} from "next-auth/react";
 import {useEffect, useState, useCallback} from "react";
 import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/useAuth";
 
 export default function Home() {
-  const {data: session} = useSession();
+  const {session} = useAuth();
   const [latestWorkout, setLatestWorkout] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -118,27 +119,18 @@ export default function Home() {
               </code>
             </p>
 
-            {/* Start New Workout Button - only show when no unfinished workout */}
-            {!isLoading && !latestWorkout && (
-              <button
-                onClick={() => router.push("/workouts/new")}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
-              >
-                Start New Workout
-              </button>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <button
-                onClick={fetchLatestWorkout}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition text-sm"
-              >
-                Refresh Latest Workout
-              </button>
-
+            <div className="justify-center gap-4 flex flex-wrap">
+              {!isLoading && !latestWorkout && (
+                <button
+                  onClick={() => router.push("/workouts/new")}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
+                >
+                  Start New Workout
+                </button>
+              )}
               <button
                 onClick={() => signOut()}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-lg"
               >
                 Sign Out
               </button>
@@ -157,7 +149,7 @@ export default function Home() {
         )}
       </div>
 
-      {session && (latestWorkout || isLoading) && (
+      {session && latestWorkout && (
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-green-500 shadow-lg p-4 z-50">
           <div className="max-w-4xl mx-auto">
             {isLoading ? (
