@@ -1,19 +1,14 @@
 "use client";
 
 import {signIn, signOut} from "next-auth/react";
-import {useEffect, useState, useCallback} from "react";
 import {useRouter} from "next/navigation";
 import {useAuth} from "@/hooks/useAuth";
 import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
 
 export default function Home() {
   const {session} = useAuth();
-  const {
-    latestWorkout,
-    isLoading,
-    handleDiscardWorkout,
-    handleResumeWorkout,
-  } = useCurrentWorkout(session);
+  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
+    useCurrentWorkout(session);
   const router = useRouter();
 
   return (

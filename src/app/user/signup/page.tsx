@@ -11,12 +11,15 @@ export default function SignUpForm() {
 
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
 
   useEffect(() => {
     if (session) {
@@ -28,13 +31,52 @@ export default function SignUpForm() {
     setForm({...form, [e.target.name]: e.target.value});
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image file");
+        return;
+      }
+
+      // Validate file size (e.g., 5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image must be less than 5MB");
+        return;
+      }
+
+      setProfilePicture(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(""); // Clear any previous errors
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    // Check if passwords match
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+
+    // Add the image file if selected
+    if (profilePicture) {
+      formData.append("profilePicture", profilePicture);
+    }
 
     try {
       const result = await registerUserAction(formData);
@@ -62,6 +104,40 @@ export default function SignUpForm() {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Profile Picture Upload */}
+          <div className="flex flex-col items-center">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Profile Picture (optional)
+            </label>
+
+            <div className="relative">
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-300"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center border-2 border-gray-300">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    No Image
+                  </span>
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Click to upload (max 5MB)
+            </p>
+          </div>
+
           <div>
             <label
               htmlFor="firstName"
@@ -128,6 +204,24 @@ export default function SignUpForm() {
               name="password"
               type="password"
               value={form.password}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Confirm Password
+            </label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={form.confirmPassword}
               onChange={handleChange}
               required
               className="mt-1 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"

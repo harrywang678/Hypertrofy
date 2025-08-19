@@ -42,6 +42,7 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
   friends: Friend[];
+  profilePicture: string;
 }
 
 export interface Friend {
