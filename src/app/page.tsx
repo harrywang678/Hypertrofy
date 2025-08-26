@@ -6,7 +6,7 @@ import {useAuth} from "@/hooks/useAuth";
 import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
 
 export default function Home() {
-  const {session} = useAuth();
+  const {session} = useAuth("/");
   const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
     useCurrentWorkout(session);
   const router = useRouter();

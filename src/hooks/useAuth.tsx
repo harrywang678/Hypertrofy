@@ -2,7 +2,7 @@ import {useSession} from "next-auth/react";
 import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 
-export const useAuth = (redirectTo: string = "/api/auth/signin") => {
+export const useAuth = (redirectTo: string = "/user/login") => {
   const {data: session, status} = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
