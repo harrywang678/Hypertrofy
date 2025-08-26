@@ -15,7 +15,7 @@ export default function Timer({
 }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState(Time);
   const [isRunning, setIsRunning] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timer = useRef<NodeJS.Timeout | null>(null);
 
   const [elapsedTime, setElapsedTime] = useState(0);
   const elapsedRef = useRef<NodeJS.Timeout | null>(null);
@@ -24,7 +24,19 @@ export default function Timer({
   const [tempTime, setTempTime] = useState<string>("");
   const [customTime, setCustomTime] = useState(Time);
 
-  // 🟢 Start the workout duration timer as soon as the component mounts
+  // Load or set workout start timestamp
+  useEffect(() => {
+    const savedStart = localStorage.getItem("timerStart");
+    if (savedStart) {
+      // calculate how much time already passed
+      const elapsed = Math.floor((Date.now() - Number(savedStart)) / 1000);
+      setElapsedTime(elapsed);
+    } else {
+      // first time mounting → save current time as start
+      localStorage.setItem("timerStart", Date.now().toString());
+    }
+  }, []);
+
   useEffect(() => {
     elapsedRef.current = setInterval(() => {
       setElapsedTime((prev) => {
@@ -50,17 +62,17 @@ export default function Timer({
 
   // 🟡 Countdown timer logic
   const clearCountdown = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+    if (timer.current) {
+      clearInterval(timer.current);
+      timer.current = null;
     }
   };
 
   const startCountdown = () => {
-    if (intervalRef.current || timeLeft <= 0) return;
+    if (timer.current || timeLeft <= 0) return;
 
     setIsRunning(true);
-    intervalRef.current = setInterval(() => {
+    timer.current = setInterval(() => {
       setTimeLeft((prev) => {
         const updated = prev - 1;
         if (updated <= 0) {
