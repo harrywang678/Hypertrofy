@@ -75,31 +75,59 @@ export default function WorkoutPage() {
   const handleSaveOrder = async () => {
     try {
       // Create array of exercise IDs in new order
+
+      let isEqual = false;
+
+      const originalOrder = memoizedExercises.map((exercise, index) => ({
+        exerciseId: exercise._id,
+        order: index,
+      }));
       const exerciseOrder = tempExerciseOrder.map((exercise, index) => ({
         exerciseId: exercise._id,
         order: index,
       }));
 
-      const res = await fetch(`/api/workouts/${workoutId}/reorder-exercises`, {
-        method: "PATCH",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({exerciseOrder}),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to reorder exercises");
+      for (let i = 0; i < exerciseOrder.length; i++) {
+        if (
+          originalOrder[i].exerciseId === exerciseOrder[i].exerciseId &&
+          originalOrder[i].order === exerciseOrder[i].order
+        ) {
+          isEqual = true;
+        } else {
+          isEqual = false;
+          break;
+        }
       }
 
-      // Update local state
-      setWorkout((prev: any) => ({
-        ...prev,
-        exercises: tempExerciseOrder,
-      }));
+      if (isEqual) {
+        setIsEditingOrder(false);
+        setTempExerciseOrder([]);
+        setDraggedIndex(null);
+      } else {
+        const res = await fetch(
+          `/api/workouts/${workoutId}/reorder-exercises`,
+          {
+            method: "PATCH",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({exerciseOrder}),
+          }
+        );
 
-      setIsEditingOrder(false);
-      setTempExerciseOrder([]);
-      setDraggedIndex(null);
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Failed to reorder exercises");
+        }
+
+        // Update local state
+        setWorkout((prev: any) => ({
+          ...prev,
+          exercises: tempExerciseOrder,
+        }));
+
+        setIsEditingOrder(false);
+        setTempExerciseOrder([]);
+        setDraggedIndex(null);
+      }
     } catch (error: any) {
       alert("Error reordering exercises: " + error.message);
       console.error(error);

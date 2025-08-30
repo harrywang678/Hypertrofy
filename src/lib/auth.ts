@@ -96,31 +96,26 @@ export const authOptions = {
       if (account?.provider === "google" && profile?.email) {
         try {
           const usersCollection = await users();
-          console.log("account", account);
-          console.log("profile", profile);
 
           const existingUser = await usersCollection.findOne({
             email: profile.email,
           });
-
-          let mongoUser = existingUser;
 
           if (!existingUser) {
             const now = new Date();
             const result = await usersCollection.insertOne({
               email: profile.email,
               name: profile.name,
-              image: profile.picture,
+              profilePicture: profile.picture,
               createdAt: now,
               updatedAt: now,
               friends: [],
             });
-            mongoUser = await usersCollection.findOne({_id: result.insertedId});
+            let mongoUser = await usersCollection.findOne({
+              _id: result.insertedId,
+            });
+            user.id = mongoUser._id.toString();
           }
-
-          // ✅ Set user.id to MongoDB _id
-          user.id = mongoUser._id.toString();
-          console.log("User signed in:", user.id);
         } catch (error) {
           console.error("Error handling Google sign-in:", error);
           return false;
@@ -132,4 +127,7 @@ export const authOptions = {
   },
 
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/user/login",
+  },
 };

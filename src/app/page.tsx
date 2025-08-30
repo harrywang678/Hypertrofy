@@ -1,95 +1,15 @@
 'use client';
 
-import { useSession, signIn, signOut } from 'next-auth/react';
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import {signIn, signOut} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/useAuth";
+import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
 
 export default function Home() {
-  const { data: session } = useSession();
-  const [latestWorkout, setLatestWorkout] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const {session} = useAuth("/");
+  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
+    useCurrentWorkout(session);
   const router = useRouter();
-
-  const fetchLatestWorkout = useCallback(async () => {
-    if (!session?.user?.id) return;
-
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/workouts/latest-unfinished');
-
-      if (res.ok) {
-        const data = await res.json();
-        setLatestWorkout(data);
-      } else if (res.status === 404) {
-        // No unfinished workout found
-        setLatestWorkout(null);
-      } else {
-        const errorData = await res.json();
-        console.error('API error:', errorData);
-        setLatestWorkout(null);
-      }
-    } catch (err) {
-      console.error('Error fetching workout:', err);
-      setLatestWorkout(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [session?.user?.id]);
-
-  useEffect(() => {
-    fetchLatestWorkout();
-  }, [fetchLatestWorkout]);
-
-  // Auto-refresh when user navigates back to the page
-  useEffect(() => {
-    const handleFocus = () => {
-      fetchLatestWorkout();
-    };
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchLatestWorkout();
-      }
-    };
-
-    // Refresh when window gains focus (user switches back to tab)
-    window.addEventListener('focus', handleFocus);
-    // Refresh when tab becomes visible (user switches back to tab)
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [fetchLatestWorkout]);
-
-  const handleResumeWorkout = () => {
-    if (latestWorkout?._id) {
-      router.push(`/workouts/${latestWorkout._id}`);
-    }
-  };
-
-  const handleDiscardWorkout = async () => {
-    if (!latestWorkout?._id) return;
-
-    try {
-      const res = await fetch(`/api/workouts/${latestWorkout._id}`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        setLatestWorkout(null);
-        alert('Workout discarded successfully');
-      } else {
-        const errorData = await res.json();
-        alert(`Error discarding workout: ${errorData.error}`);
-      }
-    } catch (err) {
-      console.error('Error discarding workout:', err);
-      alert('Failed to discard workout');
-    }
-  };
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
@@ -118,20 +38,18 @@ export default function Home() {
               </code>
             </p>
 
-            {/* Start New Workout Button - only show when no unfinished workout */}
-            {!isLoading && !latestWorkout && (
-              <button
-                onClick={() => router.push('/workouts/new')}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
-              >
-                Start New Workout
-              </button>
-            )}
-
-            <div className="flex justify-center">
+            <div className="justify-center gap-4 flex flex-wrap">
+              {!isLoading && !latestWorkout && (
+                <button
+                  onClick={() => router.push("/workouts/new")}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
+                >
+                  Start New Workout
+                </button>
+              )}
               <button
                 onClick={() => signOut()}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
+                className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition text-lg"
               >
                 Sign Out
               </button>

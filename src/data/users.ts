@@ -15,18 +15,31 @@ export const registerUser = async (
   firstName: string,
   lastName: string,
   email: string,
-  password: string
+  password: string,
+  profilePicture?: string // Make optional with default
 ): Promise<{
   signupComplete: boolean;
   user?: Omit<User, "password">;
-  error?: Error;
+  error?: string; // Change to string for consistency
 }> => {
   try {
     firstName = validation.isValidName(firstName, "First Name");
     lastName = validation.isValidName(lastName, "Last Name");
     email = validation.checkIsProperEmail(email, "Email");
     password = validation.checkIsProperPassword(password, "Password");
-    const saltRounds = 3;
+
+    // Validate profile picture if provided
+    if (profilePicture && profilePicture.trim() !== "") {
+      // Add basic validation for base64 images or URLs
+      if (
+        !profilePicture.startsWith("data:image/") &&
+        !profilePicture.startsWith("http")
+      ) {
+        throw new Error("Invalid profile picture format");
+      }
+    }
+
+    const saltRounds = 12; // Increased from 3 for better security
     const hash = await bcrypt.hash(password, saltRounds);
     const createdAt = new Date();
     const updatedAt = new Date();
@@ -37,7 +50,7 @@ export const registerUser = async (
     });
 
     if (alreadyAUser) {
-      throw new Error("There is a already an account with this Email.");
+      throw new Error("There is already an account with this email.");
     }
 
     const newUser: Omit<User, "_id"> = {
@@ -46,6 +59,7 @@ export const registerUser = async (
       password: hash,
       createdAt,
       updatedAt,
+      profilePicture: profilePicture || "", // Default to empty string
       friends: [],
     };
 
@@ -58,23 +72,32 @@ export const registerUser = async (
       _id: insertUser.insertedId,
     });
 
+    if (!createdUser) {
+      throw new Error("Server Error: Could not retrieve created user.");
+    }
+
     const {password: _pass, ...userWithoutPassword} = createdUser;
     const completedUserWithoutPassword: Omit<User, "password"> = {
       ...userWithoutPassword,
+      _id: userWithoutPassword._id.toString(), // Ensure _id is string
     };
 
-    return {signupComplete: true, user: completedUserWithoutPassword as User};
-  } catch (e: Error | any) {
-    return {signupComplete: false, error: e.message ? e.message : e};
+    return {signupComplete: true, user: completedUserWithoutPassword};
+  } catch (e: any) {
+    return {
+      signupComplete: false,
+      error: e.message || "An unexpected error occurred",
+    };
   }
 };
+
 export const loginUser = async (
   email: string,
   password: string
 ): Promise<{
   loginComplete: boolean;
   user?: Omit<User, "password">;
-  error?: Error;
+  error?: string; // Change to string for consistency
 }> => {
   try {
     email = validation.checkIsProperEmail(email, "Email");
@@ -94,14 +117,17 @@ export const loginUser = async (
     if (!passwordCrypt)
       throw new Error("Either the email or password is invalid.");
 
-    const {password: _pass, _id, ...userWithoutPassword} = userExists;
+    const {password: _pass, ...userWithoutPassword} = userExists;
     const completedUserWithoutPassword: Omit<User, "password"> = {
       ...userWithoutPassword,
-      _id: _id.toString(),
+      _id: userWithoutPassword._id.toString(),
     };
 
     return {loginComplete: true, user: completedUserWithoutPassword};
   } catch (e: any) {
-    return {loginComplete: false, error: e};
+    return {
+      loginComplete: false,
+      error: e.message || "An unexpected error occurred",
+    };
   }
 };
