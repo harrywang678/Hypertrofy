@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import {useSession, signIn, signOut} from "next-auth/react";
-import {useEffect, useState, useCallback} from "react";
-import {useRouter} from "next/navigation";
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
   const [latestWorkout, setLatestWorkout] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function Home() {
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/workouts/latest-unfinished");
+      const res = await fetch('/api/workouts/latest-unfinished');
 
       if (res.ok) {
         const data = await res.json();
@@ -25,11 +25,11 @@ export default function Home() {
         setLatestWorkout(null);
       } else {
         const errorData = await res.json();
-        console.error("API error:", errorData);
+        console.error('API error:', errorData);
         setLatestWorkout(null);
       }
     } catch (err) {
-      console.error("Error fetching workout:", err);
+      console.error('Error fetching workout:', err);
       setLatestWorkout(null);
     } finally {
       setIsLoading(false);
@@ -53,14 +53,14 @@ export default function Home() {
     };
 
     // Refresh when window gains focus (user switches back to tab)
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener('focus', handleFocus);
     // Refresh when tab becomes visible (user switches back to tab)
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Cleanup
     return () => {
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [fetchLatestWorkout]);
 
@@ -75,19 +75,19 @@ export default function Home() {
 
     try {
       const res = await fetch(`/api/workouts/${latestWorkout._id}`, {
-        method: "DELETE",
+        method: 'DELETE',
       });
 
       if (res.ok) {
         setLatestWorkout(null);
-        alert("Workout discarded successfully");
+        alert('Workout discarded successfully');
       } else {
         const errorData = await res.json();
         alert(`Error discarding workout: ${errorData.error}`);
       }
     } catch (err) {
-      console.error("Error discarding workout:", err);
-      alert("Failed to discard workout");
+      console.error('Error discarding workout:', err);
+      alert('Failed to discard workout');
     }
   };
 
@@ -106,36 +106,29 @@ export default function Home() {
               !
             </p>
             <p>
-              Email:{" "}
+              Email:{' '}
               <span className="text-blue-600 dark:text-blue-400">
                 {session.user?.email}
               </span>
             </p>
             <p>
-              User ID:{" "}
+              User ID:{' '}
               <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
-                {session.user?.id || "Not available"}
+                {session.user?.id || 'Not available'}
               </code>
             </p>
 
             {/* Start New Workout Button - only show when no unfinished workout */}
             {!isLoading && !latestWorkout && (
               <button
-                onClick={() => router.push("/workouts/new")}
+                onClick={() => router.push('/workouts/new')}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
               >
                 Start New Workout
               </button>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
-              <button
-                onClick={fetchLatestWorkout}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded transition text-sm"
-              >
-                Refresh Latest Workout
-              </button>
-
+            <div className="flex justify-center">
               <button
                 onClick={() => signOut()}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition"
@@ -148,7 +141,7 @@ export default function Home() {
           <div className="space-y-4">
             <p className="text-lg">You are not signed in.</p>
             <button
-              onClick={() => signIn("google")}
+              onClick={() => signIn('google')}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
             >
               Sign In with Google
@@ -157,19 +150,10 @@ export default function Home() {
         )}
       </div>
 
-      {session && (latestWorkout || isLoading) && (
+      {session && latestWorkout && (
         <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t-2 border-green-500 shadow-lg p-4 z-50">
           <div className="max-w-4xl mx-auto">
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-pulse flex items-center gap-3">
-                  <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Loading workout...
-                  </span>
-                </div>
-              </div>
-            ) : latestWorkout ? (
+            {latestWorkout ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -183,7 +167,7 @@ export default function Home() {
                       {latestWorkout.name}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {latestWorkout.exercises?.length || 0} exercises • Started{" "}
+                      {latestWorkout.exercises?.length || 0} exercises • Started{' '}
                       {new Date(latestWorkout.startTime).toLocaleTimeString()}
                     </p>
                   </div>
