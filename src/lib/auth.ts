@@ -1,11 +1,11 @@
 // lib/auth.ts
-import GoogleProvider from "next-auth/providers/google";
-import {users} from "@/config/mongoCollections";
-import CredentialsProvider from "next-auth/providers/credentials";
-import {loginUser} from "@/data/users";
-import {connectDB} from "@/config/database";
-import type {JWT} from "next-auth/jwt";
-import type {Session, User} from "next-auth";
+import GoogleProvider from 'next-auth/providers/google';
+import { users } from '@/config/mongoCollections';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { loginUser } from '@/data/users';
+import { connectDB } from '@/config/database';
+import type { JWT } from 'next-auth/jwt';
+import type { Session, User } from 'next-auth';
 
 export const authOptions = {
   providers: [
@@ -13,19 +13,19 @@ export const authOptions = {
       clientId:
         process.env.GOOGLE_ID ??
         (() => {
-          throw new Error("GOOGLE_ID is not set");
+          throw new Error('GOOGLE_ID is not set');
         })(),
       clientSecret:
         process.env.GOOGLE_SECRET ??
         (() => {
-          throw new Error("GOOGLE_SECRET is not set");
+          throw new Error('GOOGLE_SECRET is not set');
         })(),
     }),
     CredentialsProvider({
-      name: "credentials",
+      name: 'credentials',
       credentials: {
-        email: {label: "Email", type: "email"},
-        password: {label: "Password", type: "password"},
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -42,7 +42,7 @@ export const authOptions = {
             // result.user exists because loginUser returns {user: ...}
             return {
               id:
-                typeof result.user._id === "string"
+                typeof result.user._id === 'string'
                   ? result.user._id
                   : result.user._id.toString(),
               email: result.user.email,
@@ -52,7 +52,7 @@ export const authOptions = {
 
           return null;
         } catch (error) {
-          console.error("Authorization error:", error);
+          console.error('Authorization error:', error);
           return null;
         }
       },
@@ -79,7 +79,15 @@ export const authOptions = {
       return session;
     },
 
-    async jwt({token, user, session}: {token: JWT; user?: any; session?: any}) {
+    async jwt({
+      token,
+      user,
+      session,
+    }: {
+      token: JWT;
+      user?: any;
+      session?: any;
+    }) {
       if (user) token.user = user;
       return token;
     },
@@ -93,7 +101,7 @@ export const authOptions = {
       account?: any;
       profile?: any;
     }) {
-      if (account?.provider === "google" && profile?.email) {
+      if (account?.provider === 'google' && profile?.email) {
         try {
           const usersCollection = await users();
 
@@ -116,8 +124,11 @@ export const authOptions = {
             });
             user.id = mongoUser._id.toString();
           }
+
+          user.id = existingUser._id.toString();
+          return true;
         } catch (error) {
-          console.error("Error handling Google sign-in:", error);
+          console.error('Error handling Google sign-in:', error);
           return false;
         }
       }
@@ -128,6 +139,6 @@ export const authOptions = {
 
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/user/login",
+    signIn: '/user/login',
   },
 };

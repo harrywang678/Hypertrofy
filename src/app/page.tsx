@@ -1,18 +1,25 @@
 'use client';
 
-import {signIn, signOut} from "next-auth/react";
-import {useRouter} from "next/navigation";
-import {useAuth} from "@/hooks/useAuth";
-import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
+import { signIn, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { useCurrentWorkout } from '@/hooks/useCurrentWorkout';
+import { Button } from '@heroui/react';
+import HeroUIStyleTest from '@/components/HeroUITest';
 
 export default function Home() {
-  const {session} = useAuth("/");
-  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
-    useCurrentWorkout(session);
+  const { session } = useAuth('/');
+  const {
+    latestWorkout,
+    isLoading,
+    handleDiscardWorkout,
+    handleResumeWorkout,
+  } = useCurrentWorkout(session);
   const router = useRouter();
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
+      <HeroUIStyleTest />
       <div className="text-center space-y-6">
         <h1 className="text-4xl font-bold">Welcome to HyperTrofy</h1>
         <p className="text-lg text-gray-600 dark:text-gray-300">
@@ -40,12 +47,12 @@ export default function Home() {
 
             <div className="justify-center gap-4 flex flex-wrap">
               {!isLoading && !latestWorkout && (
-                <button
-                  onClick={() => router.push("/workouts/new")}
+                <Button
+                  onClick={() => router.push('/workouts/new')}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
                 >
                   Start New Workout
-                </button>
+                </Button>
               )}
               <button
                 onClick={() => signOut()}
@@ -58,12 +65,12 @@ export default function Home() {
         ) : (
           <div className="space-y-4">
             <p className="text-lg">You are not signed in.</p>
-            <button
+            <Button
               onClick={() => signIn('google')}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
             >
               Sign In with Google
-            </button>
+            </Button>
           </div>
         )}
       </div>
