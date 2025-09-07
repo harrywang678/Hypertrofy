@@ -1,14 +1,19 @@
-"use client";
+'use client';
 
-import {useState} from "react";
-import {useSession} from "next-auth/react";
-import Link from "next/link";
-import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useCurrentWorkout } from '@/hooks/useCurrentWorkout';
+import ThemeToggle from './ThemeToggle';
 
 export default function NavBar() {
-  const {data: session} = useSession();
-  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
-    useCurrentWorkout(session);
+  const { data: session } = useSession();
+  const {
+    latestWorkout,
+    isLoading,
+    handleDiscardWorkout,
+    handleResumeWorkout,
+  } = useCurrentWorkout(session);
 
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -50,7 +55,7 @@ export default function NavBar() {
                       if (latestWorkout) {
                         setShowPrompt(true);
                       } else {
-                        window.location.href = "/workouts/new";
+                        window.location.href = '/workouts/new';
                       }
                     }}
                     className="hover:underline"
@@ -67,6 +72,7 @@ export default function NavBar() {
                 <li>
                   <Link href="/routines">My Routines</Link>
                 </li>
+                <ThemeToggle />
               </>
             )}
           </ul>
@@ -97,7 +103,7 @@ export default function NavBar() {
                   // Call API to discard
                   handleDiscardWorkout;
                   setShowPrompt(false);
-                  window.location.href = "/workouts/new";
+                  window.location.href = '/workouts/new';
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
               >

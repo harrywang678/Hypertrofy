@@ -6,7 +6,6 @@ import {loginUser} from "@/data/users";
 import {connectDB} from "@/config/database";
 import type {JWT} from "next-auth/jwt";
 import type {Session, User} from "next-auth";
-import {mongo} from "mongoose";
 
 export const authOptions = {
   providers: [
