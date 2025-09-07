@@ -11,13 +11,6 @@
     "seed": "tsx scripts/seedExercises.ts"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@heroicons/react": "^2.2.0",
-    "@heroui/react": "^2.8.3",
-    "@heroui/theme": "^2.4.21",
-    "@mui/icons-material": "^7.3.2",
-    "@mui/material": "^7.3.2",
     "bcryptjs": "^3.0.2",
     "bson": "^6.10.4",
     "dotenv": "^16.5.0",
@@ -26,7 +19,6 @@
     "mongoose": "^8.15.1",
     "next": "^15.5.2",
     "next-auth": "^4.24.11",
-    "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "redis": "^5.1.0",

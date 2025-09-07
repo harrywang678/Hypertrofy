@@ -1,20 +1,15 @@
-'use client';
+"use client";
 
-import { signIn, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useCurrentWorkout } from '@/hooks/useCurrentWorkout';
-import { Button } from '@heroui/react';
-import HeroUIStyleTest from '@/components/HeroUITest';
+import {signIn, signOut} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/useAuth";
+import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
+import HeroUIStyleTest from "@/components/HeroUITest";
 
 export default function Home() {
-  const { session } = useAuth('/');
-  const {
-    latestWorkout,
-    isLoading,
-    handleDiscardWorkout,
-    handleResumeWorkout,
-  } = useCurrentWorkout(session);
+  const {session} = useAuth("/");
+  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
+    useCurrentWorkout(session);
   const router = useRouter();
 
   return (
@@ -33,26 +28,26 @@ export default function Home() {
               !
             </p>
             <p>
-              Email:{' '}
+              Email:{" "}
               <span className="text-blue-600 dark:text-blue-400">
                 {session.user?.email}
               </span>
             </p>
             <p>
-              User ID:{' '}
+              User ID:{" "}
               <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
-                {session.user?.id || 'Not available'}
+                {session.user?.id || "Not available"}
               </code>
             </p>
 
             <div className="justify-center gap-4 flex flex-wrap">
               {!isLoading && !latestWorkout && (
-                <Button
-                  onClick={() => router.push('/workouts/new')}
+                <button
+                  onClick={() => router.push("/workouts/new")}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
                 >
                   Start New Workout
-                </Button>
+                </button>
               )}
               <button
                 onClick={() => signOut()}
@@ -65,12 +60,12 @@ export default function Home() {
         ) : (
           <div className="space-y-4">
             <p className="text-lg">You are not signed in.</p>
-            <Button
-              onClick={() => signIn('google')}
+            <button
+              onClick={() => signIn("google")}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
             >
               Sign In with Google
-            </Button>
+            </button>
           </div>
         )}
       </div>
@@ -92,7 +87,7 @@ export default function Home() {
                       {latestWorkout.name}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {latestWorkout.exercises?.length || 0} exercises • Started{' '}
+                      {latestWorkout.exercises?.length || 0} exercises • Started{" "}
                       {new Date(latestWorkout.startTime).toLocaleTimeString()}
                     </p>
                   </div>

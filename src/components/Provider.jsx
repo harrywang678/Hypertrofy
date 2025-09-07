@@ -1,22 +1,9 @@
-'use client';
+"use client";
 
-import { SessionProvider } from 'next-auth/react';
-import { HeroUIProvider } from '@heroui/react';
-import { ThemeProvider } from 'next-themes';
+import {SessionProvider} from "next-auth/react";
 
-const Provider = ({ children, session }) => {
-  return (
-    <SessionProvider session={session}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        themes={['light', 'dark']}
-        enableSystem
-      >
-        <HeroUIProvider>{children}</HeroUIProvider>
-      </ThemeProvider>
-    </SessionProvider>
-  );
+const Provider = ({children, session}) => {
+  return <SessionProvider session={session}>{children}</SessionProvider>;
 };
 
 export default Provider;
