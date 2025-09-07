@@ -6,6 +6,7 @@ import {loginUser} from "@/data/users";
 import {connectDB} from "@/config/database";
 import type {JWT} from "next-auth/jwt";
 import type {Session, User} from "next-auth";
+import {mongo} from "mongoose";
 
 export const authOptions = {
   providers: [
@@ -97,7 +98,7 @@ export const authOptions = {
         try {
           const usersCollection = await users();
 
-          const existingUser = await usersCollection.findOne({
+          let existingUser = await usersCollection.findOne({
             email: profile.email,
           });
 
@@ -111,11 +112,16 @@ export const authOptions = {
               updatedAt: now,
               friends: [],
             });
-            let mongoUser = await usersCollection.findOne({
+            existingUser = {
               _id: result.insertedId,
-            });
-            user.id = mongoUser._id.toString();
+              name: profile.name,
+              email: profile.email,
+            };
           }
+
+          user.id = existingUser._id.toString();
+          user.email = existingUser.email;
+          user.name = existingUser.name;
         } catch (error) {
           console.error("Error handling Google sign-in:", error);
           return false;

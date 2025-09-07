@@ -7,20 +7,18 @@ export const useAuth = (redirectTo: string = "/user/login") => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  const isAuthenticated = !!session;
-
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!session) {
       router.replace(redirectTo);
     }
 
     setLoading(false);
-  }, [isAuthenticated, router, redirectTo]);
+  }, [session, router, redirectTo]);
 
   return {
     session,
     loading,
-    isAuthenticated,
+    isAuthenticated: session,
     user: session?.user,
   };
 };
