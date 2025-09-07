@@ -1,36 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
-import { useCurrentWorkout } from '@/hooks/useCurrentWorkout';
-import ThemeToggle from './ThemeToggle';
+import {useState} from "react";
+import {useSession} from "next-auth/react";
+import Link from "next/link";
+import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
 
 export default function NavBar() {
-  const { data: session } = useSession();
-  const {
-    latestWorkout,
-    isLoading,
-    handleDiscardWorkout,
-    handleResumeWorkout,
-  } = useCurrentWorkout(session);
+  const {data: session} = useSession();
+  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
+    useCurrentWorkout(session);
 
   const [showPrompt, setShowPrompt] = useState(false);
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-md">
+    <header className="">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-2xl font-bold text-blue-600 dark:text-blue-400"
-        >
+        <Link href="/" className="text-2xl font-bold">
           HyperTrofy
         </Link>
 
         {/* Nav Links */}
         <nav>
-          <ul className="flex space-x-6 text-gray-700 dark:text-gray-200 font-medium">
+          <ul className="flex space-x-6 font-medium">
             <li>
               <Link href="/">Home</Link>
             </li>
@@ -55,7 +47,7 @@ export default function NavBar() {
                       if (latestWorkout) {
                         setShowPrompt(true);
                       } else {
-                        window.location.href = '/workouts/new';
+                        window.location.href = "/workouts/new";
                       }
                     }}
                     className="hover:underline"
@@ -72,7 +64,6 @@ export default function NavBar() {
                 <li>
                   <Link href="/routines">My Routines</Link>
                 </li>
-                <ThemeToggle />
               </>
             )}
           </ul>
@@ -103,7 +94,7 @@ export default function NavBar() {
                   // Call API to discard
                   handleDiscardWorkout;
                   setShowPrompt(false);
-                  window.location.href = '/workouts/new';
+                  window.location.href = "/workouts/new";
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
               >

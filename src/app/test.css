@@ -1,0 +1,6 @@
+/* src/app/test.css */
+@import "tailwindcss/preflight";
+
+.test {
+  @apply bg-red-500 text-white p-4;
+}

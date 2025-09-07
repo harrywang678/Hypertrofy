@@ -32,7 +32,8 @@
     "src/lib/auth.ts",
     "src/config/mongoCollections.js",
     "src/config/mongoConnection.js",
-    "src/config/settings.js"
+    "src/config/settings.js",
+    "postcss.config.mjs"
   ],
   "exclude": ["node_modules"]
 }

@@ -4,7 +4,7 @@ import {signIn, signOut} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import {useAuth} from "@/hooks/useAuth";
 import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
-import HeroUIStyleTest from "@/components/HeroUITest";
+import {Button} from "@/components/ui/button";
 
 export default function Home() {
   const {session} = useAuth("/");
@@ -13,10 +13,10 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 px-4">
-      <HeroUIStyleTest />
+    <main className="min-h-screen flex flex-col items-center justify-center ">
       <div className="text-center space-y-6">
         <h1 className="text-4xl font-bold">Welcome to HyperTrofy</h1>
+        <div className="flex flex-wrap items-center gap-2 md:flex-row"></div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Your personalized workout tracker.
         </p>
@@ -28,10 +28,7 @@ export default function Home() {
               !
             </p>
             <p>
-              Email:{" "}
-              <span className="text-blue-600 dark:text-blue-400">
-                {session.user?.email}
-              </span>
+              Email: <span>{session.user?.email}</span>
             </p>
             <p>
               User ID:{" "}
