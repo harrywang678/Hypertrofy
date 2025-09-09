@@ -12,6 +12,7 @@ import {Label} from "@/components/ui/label";
 import {useSession, signIn} from "next-auth/react";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
+import Link from "next/link";
 
 export default function LoginFormUI({
   className,
@@ -83,12 +84,12 @@ export default function LoginFormUI({
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
+                  {/* <a
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </a> */}
                 </div>
                 <Input
                   onChange={handleChange}
@@ -114,9 +115,9 @@ export default function LoginFormUI({
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
+              <Link href="/user/signup" className="underline underline-offset-4">
                 Sign up
-              </a>
+              </Link>
             </div>
           </form>
         </CardContent>
