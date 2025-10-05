@@ -15,10 +15,7 @@ import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import Link from "next/link";
 
-export default function ResetPasswordPage({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -137,10 +134,7 @@ export default function ResetPasswordPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div
-        className={cn("flex flex-col gap-6 w-full max-w-md", className)}
-        {...props}
-      >
+      <div className="flex flex-col gap-6 w-full max-w-md">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Reset Password</CardTitle>

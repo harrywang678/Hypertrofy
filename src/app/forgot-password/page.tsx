@@ -16,10 +16,7 @@ import Link from "next/link";
 import {useSession} from "next-auth/react";
 import {useRouter} from "next/navigation";
 
-export default function ForgotPasswordPage({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export default function ForgotPasswordPage() {
   const {data: session, status} = useSession();
   const router = useRouter();
 
@@ -83,10 +80,7 @@ export default function ForgotPasswordPage({
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div
-        className={cn("flex flex-col gap-6 w-full max-w-md", className)}
-        {...props}
-      >
+      <div className="flex flex-col gap-6 w-full max-w-md">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Forgot Password</CardTitle>
