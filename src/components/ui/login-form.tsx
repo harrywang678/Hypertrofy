@@ -85,7 +85,7 @@ export default function LoginFormUI({
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
@@ -115,7 +115,10 @@ export default function LoginFormUI({
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <Link href="/user/signup" className="underline underline-offset-4">
+              <Link
+                href="/user/signup"
+                className="underline underline-offset-4"
+              >
                 Sign up
               </Link>
             </div>

@@ -8,17 +8,24 @@ export const useAuth = (redirectTo: string = "/user/login") => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!session) {
+    // Wait until NextAuth finishes loading
+    if (status === "loading") {
+      setLoading(true);
+      return;
+    }
+
+    // Once loaded, check authentication
+    if (status === "unauthenticated") {
       router.replace(redirectTo);
     }
 
     setLoading(false);
-  }, [session, router, redirectTo]);
+  }, [status, router, redirectTo]);
 
   return {
     session,
     loading,
-    isAuthenticated: session,
+    isAuthenticated: !!session,
     user: session?.user,
   };
 };

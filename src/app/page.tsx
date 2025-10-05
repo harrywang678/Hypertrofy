@@ -1,19 +1,15 @@
-'use client';
+"use client";
 
-import { signIn, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useCurrentWorkout } from '@/hooks/useCurrentWorkout';
-import { Button } from '@/components/ui/button';
+import {signIn, signOut} from "next-auth/react";
+import {useRouter} from "next/navigation";
+import {useAuth} from "@/hooks/useAuth";
+import {useCurrentWorkout} from "@/hooks/useCurrentWorkout";
+import {Button} from "@/components/ui/button";
 
 export default function Home() {
-  const { session } = useAuth('/');
-  const {
-    latestWorkout,
-    isLoading,
-    handleDiscardWorkout,
-    handleResumeWorkout,
-  } = useCurrentWorkout(session);
+  const {session} = useAuth("/");
+  const {latestWorkout, isLoading, handleDiscardWorkout, handleResumeWorkout} =
+    useCurrentWorkout(session);
   const router = useRouter();
 
   return (
@@ -31,20 +27,11 @@ export default function Home() {
               Hello, <span className="font-semibold">{session.user?.name}</span>
               !
             </p>
-            <p>
-              Email: <span>{session.user?.email}</span>
-            </p>
-            <p>
-              User ID:{' '}
-              <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">
-                {session.user?.id || 'Not available'}
-              </code>
-            </p>
 
             <div className="justify-center gap-4 flex flex-wrap">
               {!isLoading && !latestWorkout && (
                 <Button
-                  onClick={() => router.push('/workouts/new')}
+                  onClick={() => router.push("/workouts/new")}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-lg"
                 >
                   Start New Workout
@@ -61,8 +48,8 @@ export default function Home() {
         ) : (
           <div className="space-y-4 text-center">
             <div className="flex items-center justify-center gap-4">
-              <Button onClick={() => router.push('/user/login')}>Login</Button>
-              <Button onClick={() => router.push('/user/signup')}>
+              <Button onClick={() => router.push("/user/login")}>Login</Button>
+              <Button onClick={() => router.push("/user/signup")}>
                 Sign Up
               </Button>
             </div>
@@ -87,7 +74,7 @@ export default function Home() {
                       {latestWorkout.name}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {latestWorkout.exercises?.length || 0} exercises • Started{' '}
+                      {latestWorkout.exercises?.length || 0} exercises • Started{" "}
                       {new Date(latestWorkout.startTime).toLocaleTimeString()}
                     </p>
                   </div>
