@@ -58,6 +58,7 @@ export default function LoginFormUI({
       setLoading(false);
     }
   };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -84,12 +85,12 @@ export default function LoginFormUI({
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a
+                  <Link
                     href="/forgot-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <Input
                   onChange={handleChange}
@@ -99,15 +100,24 @@ export default function LoginFormUI({
                   required
                 />
               </div>
+
+              {/* Error Message - Add this here */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
+
               <div className="flex flex-col gap-3">
-                <Button type="submit" className="w-full">
-                  Login
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
                 <Button
                   type="button"
                   onClick={() => signIn("google")}
                   variant="outline"
                   className="w-full"
+                  disabled={loading}
                 >
                   Login with Google
                 </Button>
